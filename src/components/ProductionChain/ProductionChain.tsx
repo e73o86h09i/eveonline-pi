@@ -5,10 +5,11 @@ import { ProductionTreeNode } from './ProductionTreeNode';
 
 type ProductionChainProps = {
   typeId: number | null;
+  quantity: number;
 };
 
-export function ProductionChain({ typeId }: ProductionChainProps) {
-  const { tree, loading, error } = useProductionChain(typeId);
+export function ProductionChain({ typeId, quantity }: ProductionChainProps) {
+  const { tree, loading, error } = useProductionChain(typeId, quantity);
   const [exactNumbers, setExactNumbers] = useState(false);
 
   if (typeId === null) {

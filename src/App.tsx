@@ -7,6 +7,7 @@ import { useCommodities } from './hooks';
 function App() {
   const { commodities, loading, error } = useCommodities();
   const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
+  const [desiredQuantity, setDesiredQuantity] = useState(1);
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -16,9 +17,16 @@ function App() {
 
         {error && <p className="mb-4 text-red-400">Failed to load commodities: {error}</p>}
 
-        <CommoditySelector commodities={commodities} loading={loading} selectedTypeId={selectedTypeId} onSelect={setSelectedTypeId} />
+        <CommoditySelector
+          commodities={commodities}
+          loading={loading}
+          selectedTypeId={selectedTypeId}
+          onSelect={setSelectedTypeId}
+          desiredQuantity={desiredQuantity}
+          onQuantityChange={setDesiredQuantity}
+        />
 
-        <ProductionChain typeId={selectedTypeId} />
+        <ProductionChain typeId={selectedTypeId} quantity={desiredQuantity} />
       </main>
     </div>
   );

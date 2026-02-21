@@ -1,4 +1,4 @@
-import { Label, Select, Spinner } from 'flowbite-react';
+import { Label, Select, Spinner, TextInput } from 'flowbite-react';
 import { useMemo } from 'react';
 import type { CommodityType } from '../../types';
 import { TIERS } from '../../types';
@@ -8,9 +8,11 @@ type CommoditySelectorProps = {
   loading: boolean;
   selectedTypeId: number | null;
   onSelect: (typeId: number | null) => void;
+  desiredQuantity: number;
+  onQuantityChange: (quantity: number) => void;
 };
 
-export function CommoditySelector({ commodities, loading, selectedTypeId, onSelect }: CommoditySelectorProps) {
+export function CommoditySelector({ commodities, loading, selectedTypeId, onSelect, desiredQuantity, onQuantityChange }: CommoditySelectorProps) {
   const grouped = useMemo(() => {
     const map = new Map<number, CommodityType[]>();
     for (const commodity of commodities) {
@@ -30,6 +32,11 @@ export function CommoditySelector({ commodities, loading, selectedTypeId, onSele
     onSelect(value ? Number(value) : null);
   };
 
+  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseInt(e.target.value, 10);
+    onQuantityChange(Number.isNaN(val) || val < 1 ? 1 : val);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-gray-400">
@@ -40,28 +47,36 @@ export function CommoditySelector({ commodities, loading, selectedTypeId, onSele
   }
 
   return (
-    <div className="max-w-md">
-      <Label htmlFor="commodity-select" className="mb-2 block text-white">
-        Select a commodity to see its production chain
-      </Label>
-      <Select id="commodity-select" value={selectedTypeId ?? ''} onChange={handleChange}>
-        <option value="">-- Choose a commodity --</option>
-        {TIERS.filter((tier) => tier.tier !== 'r0').map((tier) => {
-          const items = grouped.get(tier.groupIds[0]);
-          if (!items?.length) {
-            return null;
-          }
-          return (
-            <optgroup key={tier.groupIds[0]} label={tier.label}>
-              {items.map((item) => (
-                <option key={item.type_id} value={item.type_id}>
-                  {item.name.en}
-                </option>
-              ))}
-            </optgroup>
-          );
-        })}
-      </Select>
+    <div className="flex items-end gap-4">
+      <div className="max-w-md flex-1">
+        <Label htmlFor="commodity-select" className="mb-2 block text-white">
+          Commodity
+        </Label>
+        <Select id="commodity-select" value={selectedTypeId ?? ''} onChange={handleChange}>
+          <option value="">-- Choose a commodity --</option>
+          {TIERS.filter((tier) => tier.tier !== 'r0').map((tier) => {
+            const items = grouped.get(tier.groupIds[0]);
+            if (!items?.length) {
+              return null;
+            }
+            return (
+              <optgroup key={tier.groupIds[0]} label={tier.label}>
+                {items.map((item) => (
+                  <option key={item.type_id} value={item.type_id}>
+                    {item.name.en}
+                  </option>
+                ))}
+              </optgroup>
+            );
+          })}
+        </Select>
+      </div>
+      <div className="w-28">
+        <Label htmlFor="quantity-input" className="mb-2 block text-white">
+          Quantity
+        </Label>
+        <TextInput id="quantity-input" type="number" min={1} value={desiredQuantity} onChange={handleQuantityChange} />
+      </div>
     </div>
   );
 }

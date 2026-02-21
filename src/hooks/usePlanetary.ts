@@ -71,11 +71,12 @@ async function buildTree(id: number, quantity: number): Promise<ProductionNode> 
   return node;
 }
 
-export function useProductionChain(typeId: number | null) {
+export function useProductionChain(typeId: number | null, quantity = 1) {
   const [tree, setTree] = useState<ProductionNode | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [resolvedTypeId, setResolvedTypeId] = useState<number | null>(null);
+  const [resolvedKey, setResolvedKey] = useState<string | null>(null);
   const requestRef = useRef(0);
+  const requestKey = typeId !== null ? `${typeId}-${quantity}` : null;
 
   useEffect(() => {
     if (typeId === null) {
@@ -84,28 +85,28 @@ export function useProductionChain(typeId: number | null) {
 
     const requestId = ++requestRef.current;
 
-    buildTree(typeId, 1)
+    buildTree(typeId, quantity)
       .then((result) => {
         if (requestRef.current === requestId) {
           setTree(result);
           setError(null);
-          setResolvedTypeId(typeId);
+          setResolvedKey(`${typeId}-${quantity}`);
         }
       })
       .catch((err: unknown) => {
         if (requestRef.current === requestId) {
           setTree(null);
           setError(err instanceof Error ? err.message : 'Unknown error');
-          setResolvedTypeId(typeId);
+          setResolvedKey(`${typeId}-${quantity}`);
         }
       });
-  }, [typeId]);
+  }, [typeId, quantity]);
 
   if (typeId === null) {
     return { tree: null, loading: false, error: null };
   }
 
-  const loading = resolvedTypeId !== typeId;
+  const loading = resolvedKey !== requestKey;
   return {
     tree: loading ? null : tree,
     loading,
