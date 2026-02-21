@@ -55,7 +55,7 @@ const CommoditySelector: FC<CommoditySelectorProps> = ({ commodities, loading, s
         </Label>
         <Select id="commodity-select" value={selectedTypeId ?? ''} onChange={handleChange}>
           <option value="">-- Choose a commodity --</option>
-          {TIERS.filter((tier) => tier.tier !== 'r0').map((tier) => {
+          {[...TIERS].filter((tier) => tier.tier !== 'r0').reverse().map((tier) => {
             const items = grouped.get(tier.groupIds[0]);
             if (!items?.length) {
               return null;
