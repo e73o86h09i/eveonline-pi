@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import { Alert, Card, Spinner, ToggleSwitch } from 'flowbite-react';
 import { useProductionChain } from '../../hooks';
+import { useProductionTree } from './ProductionTreeContext';
 import { ProductionTreeNode } from './ProductionTreeNode';
 
 type ProductionChainProps = {
@@ -10,7 +10,7 @@ type ProductionChainProps = {
 
 export function ProductionChain({ typeId, quantity }: ProductionChainProps) {
   const { tree, loading, error } = useProductionChain(typeId, quantity);
-  const [exactNumbers, setExactNumbers] = useState(false);
+  const { exactNumbers, setExactNumbers } = useProductionTree();
 
   if (typeId === null) {
     return (
@@ -49,7 +49,7 @@ export function ProductionChain({ typeId, quantity }: ProductionChainProps) {
         <h2 className="text-lg font-bold text-white">Production Chain</h2>
         <ToggleSwitch checked={exactNumbers} onChange={setExactNumbers} label="Exact numbers" sizing="sm" />
       </div>
-      <ProductionTreeNode node={tree} exactNumbers={exactNumbers} />
+      <ProductionTreeNode node={tree} />
     </Card>
   );
 }

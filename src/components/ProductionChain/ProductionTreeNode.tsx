@@ -1,11 +1,11 @@
-import { useState } from 'react';
 import { Badge, Tooltip } from 'flowbite-react';
 import type { ProductionNode } from '../../types';
+import { useProductionTree } from './ProductionTreeContext';
 
 type ProductionTreeNodeProps = {
   node: ProductionNode;
   depth?: number;
-  exactNumbers?: boolean;
+  path?: string;
 };
 
 const tierColors: Record<string, string> = {
@@ -99,15 +99,16 @@ function NodeTooltipContent({ node, exact = false }: { node: ProductionNode; exa
   );
 }
 
-export function ProductionTreeNode({ node, depth = 0, exactNumbers = false }: ProductionTreeNodeProps) {
+export function ProductionTreeNode({ node, depth = 0, path = String(node.typeId) }: ProductionTreeNodeProps) {
+  const { expandedNodes, toggleNode, exactNumbers } = useProductionTree();
   const color = tierColors[node.tier] ?? tierColors.r0;
   const hasChildren = node.inputs.length > 0;
   const isRoot = depth === 0;
   const showToggle = hasChildren && !isRoot;
-  const [expanded, setExpanded] = useState(isRoot);
+  const expanded = isRoot || expandedNodes.has(path);
 
   const toggleExpanded = () => {
-    setExpanded((prev) => !prev);
+    toggleNode(path, node);
   };
   const sortedInputs = sortByTier(node.inputs);
   return (
@@ -139,7 +140,7 @@ export function ProductionTreeNode({ node, depth = 0, exactNumbers = false }: Pr
       {hasChildren && (isRoot || expanded) && (
         <div className="mt-1">
           {sortedInputs.map((input) => (
-            <ProductionTreeNode key={input.typeId} node={input} depth={depth + 1} exactNumbers={exactNumbers} />
+            <ProductionTreeNode key={input.typeId} node={input} depth={depth + 1} path={`${path}.${input.typeId}`} />
           ))}
         </div>
       )}
