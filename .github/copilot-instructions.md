@@ -1,39 +1,53 @@
 # This is the React + TypeScript + Vite application that uses flowbite-react and tailwindcss for styling.
 
 ## About
-This projects aims to make it easier to calculate and setup Planetary Interaction (PI) in the game EVE Online.
-It provides a user-friendly interface that allows to see the overall necessary resources and commodities to produce the selected commodity.
+This project is an EVE Online Planetary Interaction (PI) Calculator. It provides a web UI for selecting any P1–P4 planetary commodity and viewing its full recursive production chain — from the finished product down to raw planetary resources.
 
-Planetary Interaction may be splitted into two steps: extraction and processing.
-The first step is to extract the raw materials from the planets.
-The second step is to process the raw materials into intermediate products of four possible tiers: p1, p2, p3, and p4.
-
-Application allows to select the desired commodity and see the necessary resources and commodities to produce it in a clear and organized way.
+Key features:
+- **Commodity selector** grouped by tier (P1 Basic, P2 Refined, P3 Specialized, P4 Advanced)
+- **Collapsible production chain tree** showing every intermediate and raw input with accurate quantities
+- **Schematic-aware calculations** that account for output-per-run batching (e.g. P1 produces 20 per run, P2 produces 5)
+- **Tier-colored badges** (R0 gray, P1 red, P2 yellow, P3 green, P4 blue) and **sorted inputs** (highest tier first)
+- **Hover tooltips** with per-run schematic formula and total quantities
+- **Exact numbers toggle** to switch between compact (120k) and full (120,000) formatting
+- **Foldable tree** where collapsing a node resets all nested levels
 
 ## APIs
-The application uses the [EVE Ref public API](https://docs.everef.net/datasets/reference-data.html) to get the necessary data about the commodities and their schematics.
+The application uses the [EVE Ref public API](https://docs.everef.net/datasets/reference-data.html) to get commodity and schematic data.
 
-To get the data about commodities, use the [/types/{typeID}](https://ref-data.everef.net/types/2869) endpoint, where typeID is the ID of the commodity.
-To get the data about schematics, use the [/schematics/{schematicID}](https://ref-data.everef.net/schematics/114) endpoint.
+### Endpoints
+- **Type details**: [`/types/{typeID}`](https://ref-data.everef.net/types/2869) — returns commodity info including `name`, `group_id`, and `produced_by_schematic_ids` (array of schematic IDs that produce this type)
+- **Schematic details**: [`/schematics/{schematicID}`](https://ref-data.everef.net/schematics/114) — returns `materials` (inputs) and `products` (outputs) with quantities per run, plus `cycle_time`
+- **Group members**: [`/groups/{groupID}`](https://ref-data.everef.net/groups/1042) — returns all type IDs belonging to a group
 
-The commodities group IDs can be found in the [Planetary Commodities Category (ID: 43)](https://ref-data.everef.net/categories/43)
+### Group IDs
+Planetary Commodities belong to [Category 43](https://ref-data.everef.net/categories/43) with these groups:
+| Tier | Group IDs | Output per run |
+|------|-----------|----------------|
+| R0 (Raw Resources) | 1032, 1033, 1035 | N/A (extracted) |
+| P1 (Basic) | 1042 | 20 |
+| P2 (Refined) | 1034 | 5 |
+| P3 (Specialized) | 1040 | 3 |
+| P4 (Advanced) | 1041 | 1 |
+
+> **Note:** Raw resources (R0) belong to [Category 42](https://ref-data.everef.net/categories/42), not Category 43. They are not selectable in the commodity picker but appear as leaf nodes in production chains.
+
+### Schematic structure
+Each schematic has `materials` (inputs) and `products` (outputs) keyed by type ID:
 ```json
 {
-  "category_id": 43,
-  "name": {
-    "de": "Planetarische Güter",
-    "en": "Planetary Commodities",
-    "fr": "Marchandises planétaires",
-    "ja": "惑星商品",
-    "ru": "Планетарные товары",
-    "es": "Mercancías planetarias",
-    "ko": "행성 생산품",
-    "zh": "行星商品"
+  "schematic_id": 69,
+  "cycle_time": 3600,
+  "materials": {
+    "2392": { "quantity": 40, "type_id": 2392 },
+    "3683": { "quantity": 40, "type_id": 3683 }
   },
-  "published": true,
-  "group_ids": [1034, 1040, 1041, 1042]
+  "products": {
+    "2317": { "quantity": 5, "type_id": 2317 }
+  }
 }
 ```
+The product `quantity` is the **output per run** and must be used to calculate the number of runs needed: `runs = ceil(desired / outputPerRun)`.
 
 ## Code Style
 Prefer `type` over `interface` for defining types, unless you need to use features that are only available in `interface`, such as declaration merging or implementing classes. This is because `type` is more flexible and can be used to define a wider range of types, such as union types, intersection types, and mapped types.
