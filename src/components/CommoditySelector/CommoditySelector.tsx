@@ -1,7 +1,7 @@
-import { Label, Select, Spinner } from "flowbite-react";
-import { useMemo } from "react";
-import type { CommodityType } from "../../types";
-import { TIERS } from "../../types";
+import { Label, Select, Spinner } from 'flowbite-react';
+import { useMemo } from 'react';
+import type { CommodityType } from '../../types';
+import { TIERS } from '../../types';
 
 type CommoditySelectorProps = {
   commodities: CommodityType[];
@@ -10,12 +10,7 @@ type CommoditySelectorProps = {
   onSelect: (typeId: number | null) => void;
 };
 
-export function CommoditySelector({
-  commodities,
-  loading,
-  selectedTypeId,
-  onSelect,
-}: CommoditySelectorProps) {
+export function CommoditySelector({ commodities, loading, selectedTypeId, onSelect }: CommoditySelectorProps) {
   const grouped = useMemo(() => {
     const map = new Map<number, CommodityType[]>();
     for (const commodity of commodities) {
@@ -49,15 +44,13 @@ export function CommoditySelector({
       <Label htmlFor="commodity-select" className="mb-2 block text-white">
         Select a commodity to see its production chain
       </Label>
-      <Select
-        id="commodity-select"
-        value={selectedTypeId ?? ""}
-        onChange={handleChange}
-      >
+      <Select id="commodity-select" value={selectedTypeId ?? ''} onChange={handleChange}>
         <option value="">-- Choose a commodity --</option>
         {TIERS.map((tier) => {
           const items = grouped.get(tier.groupId);
-          if (!items?.length) return null;
+          if (!items?.length) {
+            return null;
+          }
           return (
             <optgroup key={tier.groupId} label={tier.label}>
               {items.map((item) => (

@@ -1,6 +1,6 @@
-import { Alert, Card, Spinner } from "flowbite-react";
-import { useProductionChain } from "../../hooks";
-import { ProductionTreeNode } from "./ProductionTreeNode";
+import { Alert, Card, Spinner } from 'flowbite-react';
+import { useProductionChain } from '../../hooks';
+import { ProductionTreeNode } from './ProductionTreeNode';
 
 type ProductionChainProps = {
   typeId: number | null;
@@ -12,9 +12,7 @@ export function ProductionChain({ typeId }: ProductionChainProps) {
   if (typeId === null) {
     return (
       <Card className="mt-6 border-gray-700 bg-gray-800">
-        <p className="text-gray-400">
-          Select a commodity above to view its production chain.
-        </p>
+        <p className="text-gray-400">Select a commodity above to view its production chain.</p>
       </Card>
     );
   }
@@ -38,7 +36,9 @@ export function ProductionChain({ typeId }: ProductionChainProps) {
     );
   }
 
-  if (!tree) return null;
+  if (!tree) {
+    return null;
+  }
 
   return (
     <Card className="mt-6 border-gray-700 bg-gray-800">

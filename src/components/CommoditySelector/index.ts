@@ -1,1 +1,1 @@
-export { CommoditySelector } from "./CommoditySelector";
+export { CommoditySelector } from './CommoditySelector';

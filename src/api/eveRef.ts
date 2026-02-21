@@ -1,6 +1,6 @@
-import type { CommodityGroup, CommodityType, Schematic } from "../types";
+import type { CommodityGroup, CommodityType, Schematic } from '../types';
 
-const BASE_URL = "https://ref-data.everef.net";
+const BASE_URL = 'https://ref-data.everef.net';
 
 const typeCache = new Map<number, CommodityType>();
 const schematicCache = new Map<number, Schematic>();
@@ -8,10 +8,14 @@ const groupCache = new Map<number, CommodityGroup>();
 
 export async function fetchType(typeId: number): Promise<CommodityType> {
   const cached = typeCache.get(typeId);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
 
   const response = await fetch(`${BASE_URL}/types/${typeId}`);
-  if (!response.ok) throw new Error(`Failed to fetch type ${typeId}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch type ${typeId}`);
+  }
 
   const data: CommodityType = await response.json();
   typeCache.set(typeId, data);
@@ -20,11 +24,14 @@ export async function fetchType(typeId: number): Promise<CommodityType> {
 
 export async function fetchSchematic(schematicId: number): Promise<Schematic> {
   const cached = schematicCache.get(schematicId);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
 
   const response = await fetch(`${BASE_URL}/schematics/${schematicId}`);
-  if (!response.ok)
+  if (!response.ok) {
     throw new Error(`Failed to fetch schematic ${schematicId}`);
+  }
 
   const data: Schematic = await response.json();
   schematicCache.set(schematicId, data);
@@ -33,10 +40,14 @@ export async function fetchSchematic(schematicId: number): Promise<Schematic> {
 
 export async function fetchGroup(groupId: number): Promise<CommodityGroup> {
   const cached = groupCache.get(groupId);
-  if (cached) return cached;
+  if (cached) {
+    return cached;
+  }
 
   const response = await fetch(`${BASE_URL}/groups/${groupId}`);
-  if (!response.ok) throw new Error(`Failed to fetch group ${groupId}`);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch group ${groupId}`);
+  }
 
   const data: CommodityGroup = await response.json();
   groupCache.set(groupId, data);

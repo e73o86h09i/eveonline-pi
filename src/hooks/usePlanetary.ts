@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
-import type { CommodityType } from "../types";
-import { fetchAllCommodities } from "../api";
+import { useEffect, useRef, useState } from 'react';
+import type { CommodityType } from '../types';
+import { fetchAllCommodities } from '../api';
 
 export function useCommodities() {
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
@@ -19,7 +19,7 @@ export function useCommodities() {
       })
       .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Unknown error");
+          setError(err instanceof Error ? err.message : 'Unknown error');
           setLoading(false);
         }
       });
@@ -32,13 +32,13 @@ export function useCommodities() {
   return { commodities, loading, error };
 }
 
-import type { ProductionNode, Tier } from "../types";
-import { fetchSchematic, fetchType } from "../api";
-import { TIERS } from "../types";
+import type { ProductionNode, Tier } from '../types';
+import { fetchSchematic, fetchType } from '../api';
+import { TIERS } from '../types';
 
 function getTierByGroupId(groupId: number): Tier {
   const tier = TIERS.find((t) => t.groupId === groupId);
-  return tier?.tier ?? "p1";
+  return tier?.tier ?? 'p1';
 }
 
 async function buildTree(id: number, quantity: number): Promise<ProductionNode> {
@@ -57,9 +57,7 @@ async function buildTree(id: number, quantity: number): Promise<ProductionNode> 
     const schematic = await fetchSchematic(schematicIds[0]);
     node.schematicId = schematic.schematic_id;
 
-    const inputPromises = Object.values(schematic.materials).map(
-      (material) => buildTree(material.type_id, material.quantity * quantity)
-    );
+    const inputPromises = Object.values(schematic.materials).map((material) => buildTree(material.type_id, material.quantity * quantity));
     node.inputs = await Promise.all(inputPromises);
   }
 
@@ -90,7 +88,7 @@ export function useProductionChain(typeId: number | null) {
       .catch((err: unknown) => {
         if (requestRef.current === requestId) {
           setTree(null);
-          setError(err instanceof Error ? err.message : "Unknown error");
+          setError(err instanceof Error ? err.message : 'Unknown error');
           setResolvedTypeId(typeId);
         }
       });
@@ -101,5 +99,9 @@ export function useProductionChain(typeId: number | null) {
   }
 
   const loading = resolvedTypeId !== typeId;
-  return { tree: loading ? null : tree, loading, error: loading ? null : error };
+  return {
+    tree: loading ? null : tree,
+    loading,
+    error: loading ? null : error,
+  };
 }
