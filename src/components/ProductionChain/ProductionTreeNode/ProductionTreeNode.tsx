@@ -3,7 +3,7 @@ import { Badge, Tooltip } from 'flowbite-react';
 import type { ProductionNode } from '../../../types';
 import { useProductionTree } from '../ProductionTreeContext';
 import { formatDuration, formatQuantity, sortByTier, tierColors } from '../utils';
-import NodeTooltipContent from './NodeTooltipContent';
+import { NodeTooltipContent } from './NodeTooltipContent';
 
 type ProductionTreeNodeProps = {
   node: ProductionNode;

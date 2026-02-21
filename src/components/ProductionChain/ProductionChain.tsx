@@ -1,8 +1,9 @@
 import type { FC } from 'react';
-import { Alert, Card, Spinner, ToggleSwitch } from 'flowbite-react';
+import { Alert, Card, Spinner, TabItem, Tabs, ToggleSwitch } from 'flowbite-react';
 import { useProductionChain } from '../../hooks';
 import { useProductionTree } from './ProductionTreeContext';
 import { ProductionTreeNode } from './ProductionTreeNode';
+import { ProductionSummary } from './ProductionSummary';
 
 type ProductionChainProps = {
   typeId: number | null;
@@ -50,7 +51,14 @@ const ProductionChain: FC<ProductionChainProps> = ({ typeId, quantity }) => {
         <h2 className="text-lg font-bold text-white">Production Chain</h2>
         <ToggleSwitch checked={exactNumbers} onChange={setExactNumbers} label="Exact numbers" sizing="sm" />
       </div>
-      <ProductionTreeNode node={tree} />
+      <Tabs variant="underline">
+        <TabItem active title="Tree">
+          <ProductionTreeNode node={tree} />
+        </TabItem>
+        <TabItem title="Summary">
+          <ProductionSummary tree={tree} />
+        </TabItem>
+      </Tabs>
     </Card>
   );
 };

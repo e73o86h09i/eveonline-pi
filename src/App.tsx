@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useState } from 'react';
-import Header from './components/Header';
+import { Header } from './components/Header';
 import { CommoditySelector } from './components/CommoditySelector';
 import { ProductionChain, ProductionTreeProvider } from './components/ProductionChain';
 import { useCommodities } from './hooks';
@@ -35,4 +35,4 @@ const App: FC = () => {
   );
 };
 
-export default App;
+export { App };

@@ -54,4 +54,4 @@ const NodeTooltipContent: FC<NodeTooltipContentProps> = ({ node, exact = false }
   );
 };
 
-export default NodeTooltipContent;
+export { NodeTooltipContent };

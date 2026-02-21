@@ -9,4 +9,4 @@ const Header: FC = () => (
   </Navbar>
 );
 
-export default Header;
+export { Header };

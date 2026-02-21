@@ -1,3 +1,5 @@
+import type { ProductionNode, Tier } from '../../types';
+
 const tierOrder: Record<string, number> = { p4: 0, p3: 1, p2: 2, p1: 3, r0: 4 };
 
 export function sortByTier<T extends { tier: string }>(items: T[]): T[] {
@@ -41,3 +43,33 @@ export const tierColors: Record<string, string> = {
   p3: 'green',
   p4: 'blue',
 };
+
+export type SummaryEntry = {
+  typeId: number;
+  name: string;
+  tier: Tier;
+  quantity: number;
+};
+
+export function summarizeTree(root: ProductionNode): SummaryEntry[] {
+  const map = new Map<number, SummaryEntry>();
+
+  function walk(node: ProductionNode) {
+    const existing = map.get(node.typeId);
+    if (existing) {
+      existing.quantity += node.quantity;
+    } else {
+      map.set(node.typeId, { typeId: node.typeId, name: node.name, tier: node.tier, quantity: node.quantity });
+    }
+    for (const input of node.inputs) {
+      walk(input);
+    }
+  }
+
+  // Walk children only — exclude root since it's the final product, not something to produce
+  for (const input of root.inputs) {
+    walk(input);
+  }
+
+  return sortByTier([...map.values()]);
+}

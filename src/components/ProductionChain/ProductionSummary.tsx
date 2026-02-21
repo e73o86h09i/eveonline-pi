@@ -1,0 +1,89 @@
+import type { FC } from 'react';
+import { useMemo } from 'react';
+import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
+import type { ProductionNode } from '../../types';
+import { TIERS } from '../../types';
+import { useProductionTree } from './ProductionTreeContext';
+import { formatDuration, formatQuantity, summarizeTree, tierColors } from './utils';
+
+type ProductionSummaryProps = {
+  tree: ProductionNode;
+};
+
+const tierLabels: Record<string, string> = Object.fromEntries(TIERS.map((t) => [t.tier, t.label]));
+
+const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
+  const { exactNumbers } = useProductionTree();
+  const entries = useMemo(() => summarizeTree(tree), [tree]);
+
+  if (entries.length === 0) {
+    return <p className="text-gray-400">No intermediate materials needed.</p>;
+  }
+
+  return (
+    <Table hoverable className="border-gray-700">
+      <TableHead>
+        <TableHeadCell className="bg-gray-700 text-gray-300">Tier</TableHeadCell>
+        <TableHeadCell className="bg-gray-700 text-gray-300">Commodity</TableHeadCell>
+        <TableHeadCell className="bg-gray-700 text-gray-300 text-right">Quantity</TableHeadCell>
+        <TableHeadCell className="bg-gray-700 text-gray-300 text-right">Time</TableHeadCell>
+      </TableHead>
+      <TableBody className="divide-y divide-gray-700">
+        {entries.map((entry, idx) => {
+          const color = tierColors[entry.tier] ?? tierColors.r0;
+          const showTierHeader = idx === 0 || entries[idx - 1].tier !== entry.tier;
+
+          return (
+            <>
+              {showTierHeader && (
+                <TableRow key={`tier-${entry.tier}`} className="bg-gray-800/50">
+                  <TableCell colSpan={4} className="py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    {tierLabels[entry.tier] ?? entry.tier}
+                  </TableCell>
+                </TableRow>
+              )}
+              <TableRow key={entry.typeId} className="border-gray-700 bg-gray-800">
+                <TableCell className="w-16">
+                  <Badge color={color} className="uppercase">
+                    {entry.tier}
+                  </Badge>
+                </TableCell>
+                <TableCell className="font-medium text-white">{entry.name}</TableCell>
+                <TableCell className="text-right text-gray-300">{formatQuantity(entry.quantity, exactNumbers)}</TableCell>
+                <TableCell className="text-right text-gray-400">
+                  {entry.tier !== 'r0' ? formatDuration(findCycleTime(tree, entry.typeId, entry.quantity)) : '—'}
+                </TableCell>
+              </TableRow>
+            </>
+          );
+        })}
+      </TableBody>
+    </Table>
+  );
+};
+
+function findCycleTime(root: ProductionNode, typeId: number, _totalQuantity: number): number {
+  // Find the first node matching typeId to get cycleTime and outputPerRun
+  const node = findNode(root, typeId);
+  if (!node || !node.cycleTime) {
+    return 0;
+  }
+  const outputPerRun = node.outputPerRun ?? 1;
+  const runs = Math.ceil(_totalQuantity / outputPerRun);
+  return node.cycleTime * runs;
+}
+
+function findNode(node: ProductionNode, typeId: number): ProductionNode | null {
+  if (node.typeId === typeId) {
+    return node;
+  }
+  for (const input of node.inputs) {
+    const found = findNode(input, typeId);
+    if (found) {
+      return found;
+    }
+  }
+  return null;
+}
+
+export { ProductionSummary };

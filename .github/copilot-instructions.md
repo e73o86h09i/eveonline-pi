@@ -120,8 +120,21 @@ const Header: FC = () => (
 export default Header;
 ```
 
+Components that are **not** in their own directory (i.e. a single `.tsx` file without a dedicated folder) use a named export directly:
+
+```tsx
+export { Header };
+```
+
 Barrel `index.ts` files re-export default exports as named exports:
 
 ```ts
 export { default as MyComponent } from './MyComponent';
+```
+
+This way, all components are imported uniformly using named imports:
+
+```ts
+import { Header } from './components/Header';
+import { ProductionChain } from './components/ProductionChain';
 ```
