@@ -37,8 +37,8 @@ import { fetchSchematic, fetchType } from '../api';
 import { TIERS } from '../types';
 
 function getTierByGroupId(groupId: number): Tier {
-  const tier = TIERS.find((t) => t.groupId === groupId);
-  return tier?.tier ?? 'p1';
+  const tier = TIERS.find((t) => t.groupIds.includes(groupId));
+  return tier?.tier ?? 'r0';
 }
 
 async function buildTree(id: number, quantity: number): Promise<ProductionNode> {
@@ -57,7 +57,13 @@ async function buildTree(id: number, quantity: number): Promise<ProductionNode> 
     const schematic = await fetchSchematic(schematicIds[0]);
     node.schematicId = schematic.schematic_id;
 
-    const inputPromises = Object.values(schematic.materials).map((material) => buildTree(material.type_id, material.quantity * quantity));
+    const output = Object.values(schematic.products)[0];
+    const outputPerRun = output?.quantity ?? 1;
+    node.outputPerRun = outputPerRun;
+    const runs = Math.ceil(quantity / outputPerRun);
+    node.quantity = runs * outputPerRun;
+
+    const inputPromises = Object.values(schematic.materials).map((material) => buildTree(material.type_id, material.quantity * runs));
     node.inputs = await Promise.all(inputPromises);
   }
 

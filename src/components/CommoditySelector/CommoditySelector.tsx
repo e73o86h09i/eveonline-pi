@@ -46,13 +46,13 @@ export function CommoditySelector({ commodities, loading, selectedTypeId, onSele
       </Label>
       <Select id="commodity-select" value={selectedTypeId ?? ''} onChange={handleChange}>
         <option value="">-- Choose a commodity --</option>
-        {TIERS.map((tier) => {
-          const items = grouped.get(tier.groupId);
+        {TIERS.filter((tier) => tier.tier !== 'r0').map((tier) => {
+          const items = grouped.get(tier.groupIds[0]);
           if (!items?.length) {
             return null;
           }
           return (
-            <optgroup key={tier.groupId} label={tier.label}>
+            <optgroup key={tier.groupIds[0]} label={tier.label}>
               {items.map((item) => (
                 <option key={item.type_id} value={item.type_id}>
                   {item.name.en}
