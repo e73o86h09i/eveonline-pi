@@ -20,6 +20,7 @@ export type ProductionNode = {
   tier: Tier;
   quantity: number;
   outputPerRun?: number;
+  cycleTime?: number;
   schematicId?: number;
   inputs: ProductionNode[];
 };

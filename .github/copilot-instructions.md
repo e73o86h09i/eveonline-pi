@@ -8,7 +8,8 @@ Key features:
 - **Collapsible production chain tree** showing every intermediate and raw input with accurate quantities
 - **Schematic-aware calculations** that account for output-per-run batching (e.g. P1 produces 20 per run, P2 produces 5)
 - **Tier-colored badges** (R0 gray, P1 red, P2 yellow, P3 green, P4 blue) and **sorted inputs** (highest tier first)
-- **Hover tooltips** with per-run schematic formula and total quantities
+- **Hover tooltips** with per-run schematic formula, cycle time per run, and total quantities/duration
+- **Cycle time display** on each tree node showing the total production time for the required runs
 - **Exact numbers toggle** to switch between compact (120k) and full (120,000) formatting
 - **Foldable tree** where collapsing a node resets all nested levels
 

@@ -35,6 +35,23 @@ function formatQuantity(n: number, exact = false): string {
   return n.toLocaleString();
 }
 
+function formatDuration(seconds: number): string {
+  const days = Math.floor(seconds / 86400);
+  const hours = Math.floor((seconds % 86400) / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const parts: string[] = [];
+  if (days > 0) {
+    parts.push(`${days}d`);
+  }
+  if (hours > 0) {
+    parts.push(`${hours}h`);
+  }
+  if (minutes > 0) {
+    parts.push(`${minutes}m`);
+  }
+  return parts.join(' ') || '0m';
+}
+
 function NodeTooltipContent({ node, exact = false }: { node: ProductionNode; exact?: boolean }) {
   if (node.inputs.length === 0) {
     return <span>{node.name} (raw resource, extracted from planets)</span>;
@@ -43,6 +60,7 @@ function NodeTooltipContent({ node, exact = false }: { node: ProductionNode; exa
   const sortedInputs = sortByTier(node.inputs);
   const outputPerRun = node.outputPerRun ?? 1;
   const runs = node.quantity / outputPerRun;
+  const cycleTime = node.cycleTime ?? 0;
 
   const perRun = sortedInputs.map((input) => ({
     name: input.name,
@@ -54,7 +72,7 @@ function NodeTooltipContent({ node, exact = false }: { node: ProductionNode; exa
       <div className="mb-1 font-semibold">
         {formatQuantity(node.quantity, exact)}× {node.name}
       </div>
-      <div className="mb-1 text-xs text-gray-300">Per run:</div>
+      <div className="mb-1 text-xs text-gray-300">Per run ({formatDuration(cycleTime)}):</div>
       <div className="text-xs">
         <div>
           {outputPerRun}× {node.name} =
@@ -68,7 +86,7 @@ function NodeTooltipContent({ node, exact = false }: { node: ProductionNode; exa
       {runs > 1 && (
         <div className="mt-1 border-t border-gray-600 pt-1 text-xs">
           <div>
-            Total ({formatQuantity(runs, exact)} runs): {formatQuantity(node.quantity, exact)}× {node.name} =
+            Total ({formatQuantity(runs, exact)} runs, {formatDuration(cycleTime * runs)}): {formatQuantity(node.quantity, exact)}× {node.name} =
           </div>
           {sortedInputs.map((input) => (
             <div key={input.name} className="pl-3">
@@ -112,6 +130,9 @@ export function ProductionTreeNode({ node, depth = 0, exactNumbers = false }: Pr
             </Badge>
             <span className="font-medium text-white">{node.name}</span>
             <span className="text-sm text-gray-400">×{formatQuantity(node.quantity, exactNumbers)}</span>
+            {node.cycleTime != null && (
+              <span className="text-sm text-gray-500">({formatDuration(node.cycleTime * (node.quantity / (node.outputPerRun ?? 1)))})</span>
+            )}
           </div>
         </Tooltip>
       </div>

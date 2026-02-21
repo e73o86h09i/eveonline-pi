@@ -8,7 +8,8 @@ A web application for calculating and visualizing Planetary Interaction (PI) pro
 - **Production chain tree** — view the full recursive production chain as a collapsible tree, from the selected commodity down to raw resources
 - **Accurate calculations** — accounts for schematic output quantities and run batching (e.g. P1 produces 20 per run, P2 produces 5 per run)
 - **Tier badges** — color-coded tier labels (R0, P1, P2, P3, P4) on every node
-- **Tooltips** — hover any node to see the per-run schematic formula and total quantities
+- **Tooltips** — hover any node to see the per-run schematic formula, cycle time, and total quantities
+- **Cycle time** — each node shows total production time; tooltips show per-run and total duration
 - **Exact numbers toggle** — switch between compact (120k, 1.5M) and exact (120,000) number formatting
 - **Foldable tree** — expand/collapse any level; collapsing a node resets all nested levels
 - **Sorted by tier** — inputs are sorted from highest tier to lowest within each node

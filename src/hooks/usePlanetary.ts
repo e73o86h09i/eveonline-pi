@@ -56,6 +56,7 @@ async function buildTree(id: number, quantity: number): Promise<ProductionNode> 
   if (schematicIds && schematicIds.length > 0) {
     const schematic = await fetchSchematic(schematicIds[0]);
     node.schematicId = schematic.schematic_id;
+    node.cycleTime = schematic.cycle_time;
 
     const output = Object.values(schematic.products)[0];
     const outputPerRun = output?.quantity ?? 1;
