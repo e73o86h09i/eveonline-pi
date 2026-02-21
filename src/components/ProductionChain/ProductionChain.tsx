@@ -1,3 +1,4 @@
+import type { FC } from 'react';
 import { Alert, Card, Spinner, ToggleSwitch } from 'flowbite-react';
 import { useProductionChain } from '../../hooks';
 import { useProductionTree } from './ProductionTreeContext';
@@ -8,7 +9,7 @@ type ProductionChainProps = {
   quantity: number;
 };
 
-export function ProductionChain({ typeId, quantity }: ProductionChainProps) {
+const ProductionChain: FC<ProductionChainProps> = ({ typeId, quantity }) => {
   const { tree, loading, error } = useProductionChain(typeId, quantity);
   const { exactNumbers, setExactNumbers } = useProductionTree();
 
@@ -52,4 +53,6 @@ export function ProductionChain({ typeId, quantity }: ProductionChainProps) {
       <ProductionTreeNode node={tree} />
     </Card>
   );
-}
+};
+
+export default ProductionChain;

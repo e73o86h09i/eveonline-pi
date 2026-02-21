@@ -1,1 +1,1 @@
-export { CommoditySelector } from './CommoditySelector';
+export { default as CommoditySelector } from './CommoditySelector';

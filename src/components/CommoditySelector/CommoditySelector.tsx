@@ -1,3 +1,4 @@
+import type { FC } from 'react';
 import { Label, Select, Spinner, TextInput } from 'flowbite-react';
 import { useMemo } from 'react';
 import type { CommodityType } from '../../types';
@@ -12,7 +13,7 @@ type CommoditySelectorProps = {
   onQuantityChange: (quantity: number) => void;
 };
 
-export function CommoditySelector({ commodities, loading, selectedTypeId, onSelect, desiredQuantity, onQuantityChange }: CommoditySelectorProps) {
+const CommoditySelector: FC<CommoditySelectorProps> = ({ commodities, loading, selectedTypeId, onSelect, desiredQuantity, onQuantityChange }) => {
   const grouped = useMemo(() => {
     const map = new Map<number, CommodityType[]>();
     for (const commodity of commodities) {
@@ -79,4 +80,6 @@ export function CommoditySelector({ commodities, loading, selectedTypeId, onSele
       </div>
     </div>
   );
-}
+};
+
+export default CommoditySelector;

@@ -77,3 +77,51 @@ src/
 Put reusable components that are used in multiple places in a separate folder named `common`. For example, if `Button` is used in both `Header` and `Footer`, put it in `src/components/common/Button.tsx`.
 
 Talking shortly, follow the low copuling high cohesion principle to keep the components organized and easy to maintain.
+
+## Component Syntax
+Define React components using `FC` from React with `export default`:
+
+```tsx
+import type { FC } from 'react';
+
+type MyComponentProps = {
+  foo: string;
+  bar: boolean;
+};
+
+const MyComponent: FC<MyComponentProps> = ({ foo, bar }) => {
+  // logic here
+
+  return (
+    <div>{foo}</div>
+  );
+};
+
+export default MyComponent;
+```
+
+If a component is simple and contains only the render part (no logic, hooks, or intermediate variables), use the short return syntax:
+
+```tsx
+const MyComponent: FC<MyComponentProps> = ({ foo, bar }) => (
+  <div>{foo}</div>
+);
+
+export default MyComponent;
+```
+
+Components without props use `FC` with no generic argument:
+
+```tsx
+const Header: FC = () => (
+  <nav>...</nav>
+);
+
+export default Header;
+```
+
+Barrel `index.ts` files re-export default exports as named exports:
+
+```ts
+export { default as MyComponent } from './MyComponent';
+```

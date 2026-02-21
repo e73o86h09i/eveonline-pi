@@ -1,46 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Header } from './components/Header';
+import type { FC } from 'react';
+import { useState } from 'react';
+import Header from './components/Header';
 import { CommoditySelector } from './components/CommoditySelector';
-import { ProductionChain } from './components/ProductionChain';
-import { ProductionTreeContext } from './components/ProductionChain/ProductionTreeContext';
-import type { ProductionNode } from './types';
+import { ProductionChain, ProductionTreeProvider } from './components/ProductionChain';
 import { useCommodities } from './hooks';
 
-function collectDescendantPaths(node: ProductionNode, parentPath: string): string[] {
-  const paths: string[] = [];
-  for (const input of node.inputs) {
-    const childPath = `${parentPath}.${input.typeId}`;
-    paths.push(childPath);
-    paths.push(...collectDescendantPaths(input, childPath));
-  }
-  return paths;
-}
-
-function ProductionTreeProvider({ children }: { children: React.ReactNode }) {
-  const [exactNumbers, setExactNumbers] = useState(false);
-  const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set());
-
-  const toggleNode = useCallback((path: string, node: ProductionNode) => {
-    setExpandedNodes((prev) => {
-      const next = new Set(prev);
-      if (next.has(path)) {
-        next.delete(path);
-        for (const descendant of collectDescendantPaths(node, path)) {
-          next.delete(descendant);
-        }
-      } else {
-        next.add(path);
-      }
-      return next;
-    });
-  }, []);
-
-  const treeContextValue = useMemo(() => ({ expandedNodes, toggleNode, exactNumbers, setExactNumbers }), [expandedNodes, toggleNode, exactNumbers]);
-
-  return <ProductionTreeContext value={treeContextValue}>{children}</ProductionTreeContext>;
-}
-
-function App() {
+const App: FC = () => {
   const { commodities, loading, error } = useCommodities();
   const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
   const [desiredQuantity, setDesiredQuantity] = useState(1);
@@ -68,6 +33,6 @@ function App() {
       </main>
     </div>
   );
-}
+};
 
 export default App;
