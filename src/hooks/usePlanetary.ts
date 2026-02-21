@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CommodityType } from "../types";
 import { fetchAllCommodities } from "../api";
 
@@ -41,67 +41,65 @@ function getTierByGroupId(groupId: number): Tier {
   return tier?.tier ?? "p1";
 }
 
+async function buildTree(id: number, quantity: number): Promise<ProductionNode> {
+  const typeData = await fetchType(id);
+  const tier = getTierByGroupId(typeData.group_id);
+  const node: ProductionNode = {
+    typeId: id,
+    name: typeData.name.en,
+    tier,
+    quantity,
+    inputs: [],
+  };
+
+  const schematicIds = typeData.produced_by_schematic_ids;
+  if (schematicIds && schematicIds.length > 0) {
+    const schematic = await fetchSchematic(schematicIds[0]);
+    node.schematicId = schematic.schematic_id;
+
+    const inputPromises = Object.values(schematic.materials).map(
+      (material) => buildTree(material.type_id, material.quantity * quantity)
+    );
+    node.inputs = await Promise.all(inputPromises);
+  }
+
+  return node;
+}
+
 export function useProductionChain(typeId: number | null) {
   const [tree, setTree] = useState<ProductionNode | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const buildTree = useCallback(
-    async (id: number, quantity: number): Promise<ProductionNode> => {
-      const typeData = await fetchType(id);
-      const tier = getTierByGroupId(typeData.group_id);
-      const node: ProductionNode = {
-        typeId: id,
-        name: typeData.name.en,
-        tier,
-        quantity,
-        inputs: [],
-      };
-
-      const schematicIds = typeData.produced_by_schematic_ids;
-      if (schematicIds && schematicIds.length > 0) {
-        const schematic = await fetchSchematic(schematicIds[0]);
-        node.schematicId = schematic.schematic_id;
-
-        const inputPromises = Object.values(schematic.materials).map(
-          (material) => buildTree(material.type_id, material.quantity * quantity)
-        );
-        node.inputs = await Promise.all(inputPromises);
-      }
-
-      return node;
-    },
-    []
-  );
+  const [resolvedTypeId, setResolvedTypeId] = useState<number | null>(null);
+  const requestRef = useRef(0);
 
   useEffect(() => {
     if (typeId === null) {
-      setTree(null);
       return;
     }
 
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
+    const requestId = ++requestRef.current;
 
     buildTree(typeId, 1)
       .then((result) => {
-        if (!cancelled) {
+        if (requestRef.current === requestId) {
           setTree(result);
-          setLoading(false);
+          setError(null);
+          setResolvedTypeId(typeId);
         }
       })
       .catch((err: unknown) => {
-        if (!cancelled) {
+        if (requestRef.current === requestId) {
+          setTree(null);
           setError(err instanceof Error ? err.message : "Unknown error");
-          setLoading(false);
+          setResolvedTypeId(typeId);
         }
       });
+  }, [typeId]);
 
-    return () => {
-      cancelled = true;
-    };
-  }, [typeId, buildTree]);
+  if (typeId === null) {
+    return { tree: null, loading: false, error: null };
+  }
 
-  return { tree, loading, error };
+  const loading = resolvedTypeId !== typeId;
+  return { tree: loading ? null : tree, loading, error: loading ? null : error };
 }
