@@ -31,6 +31,18 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
         </TableRow>
       </TableHead>
       <TableBody className="divide-y divide-gray-700">
+        <TableRow className="border-gray-700 bg-gray-800">
+          <TableCell className="w-16">
+            <Badge color={tierColors[tree.tier] ?? tierColors.r0} className="uppercase">
+              {tree.tier}
+            </Badge>
+          </TableCell>
+          <TableCell className="font-semibold text-white">{tree.name}</TableCell>
+          <TableCell className="text-right text-gray-300">{formatQuantity(tree.quantity, exactNumbers)}</TableCell>
+          <TableCell className="text-right text-gray-400">
+            {tree.cycleTime != null ? formatDuration(findCycleTime(tree, tree.typeId, tree.quantity)) : '—'}
+          </TableCell>
+        </TableRow>
         {entries.map((entry, idx) => {
           const color = tierColors[entry.tier] ?? tierColors.r0;
           const showTierHeader = idx === 0 || entries[idx - 1].tier !== entry.tier;
