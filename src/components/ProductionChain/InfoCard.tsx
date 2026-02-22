@@ -24,7 +24,46 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
   const [position, setPosition] = useState(initialPosition);
   const positionRef = useRef(initialPosition);
   const dragStartRef = useRef({ x: 0, y: 0 });
-  const cardRef = useRef<HTMLDivElement>(null);
+  const cardElRef = useRef<HTMLDivElement | null>(null);
+
+  const handleCardRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      cardElRef.current = element;
+
+      if (!element) {
+        return;
+      }
+
+      const gap = 10;
+      const rect = element.getBoundingClientRect();
+      let { x, y } = positionRef.current;
+      let adjusted = false;
+
+      if (x < gap) {
+        x = gap;
+        adjusted = true;
+      } else if (x + rect.width > window.innerWidth - gap) {
+        x = Math.max(gap, window.innerWidth - rect.width - gap);
+        adjusted = true;
+      }
+
+      if (y < gap) {
+        y = gap;
+        adjusted = true;
+      } else if (y + rect.height > window.innerHeight - gap) {
+        y = Math.max(gap, window.innerHeight - rect.height - gap);
+        adjusted = true;
+      }
+
+      if (adjusted) {
+        const clamped = { x, y };
+        positionRef.current = clamped;
+        setPosition(clamped);
+        onPositionChange(clamped);
+      }
+    },
+    [onPositionChange],
+  );
 
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
@@ -87,7 +126,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
 
   return (
     <div
-      ref={cardRef}
+      ref={handleCardRef}
       className="fixed z-50 w-80 cursor-move select-none shadow-2xl"
       style={{ left: position.x, top: position.y }}
       onMouseDown={handleMouseDown}
