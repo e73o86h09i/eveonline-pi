@@ -25,14 +25,17 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
   const positionRef = useRef(initialPosition);
   const dragStartRef = useRef({ x: 0, y: 0 });
   const cardElRef = useRef<HTMLDivElement | null>(null);
+  const initialAdjustDoneRef = useRef(false);
 
   const handleCardRef = useCallback(
     (element: HTMLDivElement | null) => {
       cardElRef.current = element;
 
-      if (!element) {
+      if (!element || initialAdjustDoneRef.current) {
         return;
       }
+
+      initialAdjustDoneRef.current = true;
 
       const gap = 10;
       const rect = element.getBoundingClientRect();
