@@ -6,6 +6,8 @@ type ProductionTreeContextValue = {
   toggleNode: (path: string, node: ProductionNode) => void;
   exactNumbers: boolean;
   setExactNumbers: (value: boolean) => void;
+  activeTab: number;
+  setActiveTab: (tab: number) => void;
 };
 
 const ProductionTreeContext = createContext<ProductionTreeContextValue | null>(null);

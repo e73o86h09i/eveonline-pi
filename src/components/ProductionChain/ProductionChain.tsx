@@ -12,7 +12,7 @@ type ProductionChainProps = {
 
 const ProductionChain: FC<ProductionChainProps> = ({ typeId, quantity }) => {
   const { tree, loading, error } = useProductionChain(typeId, quantity);
-  const { exactNumbers, setExactNumbers } = useProductionTree();
+  const { exactNumbers, setExactNumbers, activeTab, setActiveTab } = useProductionTree();
 
   if (typeId === null) {
     return (
@@ -51,11 +51,11 @@ const ProductionChain: FC<ProductionChainProps> = ({ typeId, quantity }) => {
         <h2 className="text-lg font-bold text-white">Production Chain</h2>
         <ToggleSwitch checked={exactNumbers} onChange={setExactNumbers} label="Exact numbers" sizing="sm" />
       </div>
-      <Tabs variant="underline">
-        <TabItem active title="Tree">
+      <Tabs variant="underline" onActiveTabChange={setActiveTab}>
+        <TabItem active={activeTab === 0} title="Tree">
           <ProductionTreeNode node={tree} />
         </TabItem>
-        <TabItem title="Summary">
+        <TabItem active={activeTab === 1} title="Summary">
           <ProductionSummary tree={tree} />
         </TabItem>
       </Tabs>

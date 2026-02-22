@@ -16,6 +16,7 @@ function collectDescendantPaths(node: ProductionNode, parentPath: string): strin
 const ProductionTreeProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [exactNumbers, setExactNumbers] = useState(false);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set());
+  const [activeTab, setActiveTab] = useState(0);
 
   const toggleNode = useCallback((path: string, node: ProductionNode) => {
     setExpandedNodes((prev) => {
@@ -32,7 +33,10 @@ const ProductionTreeProvider: FC<{ children: ReactNode }> = ({ children }) => {
     });
   }, []);
 
-  const treeContextValue = useMemo(() => ({ expandedNodes, toggleNode, exactNumbers, setExactNumbers }), [expandedNodes, toggleNode, exactNumbers]);
+  const treeContextValue = useMemo(
+    () => ({ expandedNodes, toggleNode, exactNumbers, setExactNumbers, activeTab, setActiveTab }),
+    [expandedNodes, toggleNode, exactNumbers, activeTab],
+  );
 
   return <ProductionTreeContext value={treeContextValue}>{children}</ProductionTreeContext>;
 };
