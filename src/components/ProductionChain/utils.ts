@@ -2,8 +2,8 @@ import type { ProductionNode, Tier } from '../../types';
 
 const tierOrder: Record<string, number> = { p4: 0, p3: 1, p2: 2, p1: 3, r0: 4 };
 
-export const sortByTier = <T extends { tier: string }>(items: T[]): T[] => {
-  return [...items].sort((a, b) => (tierOrder[a.tier] ?? 99) - (tierOrder[b.tier] ?? 99));
+export const sortByTier = <T extends { tier: string; name: string }>(items: T[]): T[] => {
+  return [...items].sort((a, b) => (tierOrder[a.tier] ?? 99) - (tierOrder[b.tier] ?? 99) || a.name.localeCompare(b.name));
 };
 
 export const formatQuantity = (value: number, exact = false): string => {
