@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import { Badge, Card } from 'flowbite-react';
-import type { Tier } from '../../types';
+import type { ProductionNode, Tier } from '../../types';
 import { usePlanets } from '../../hooks';
 import { CommodityIcon } from '../common/CommodityIcon';
 import { useProductionTree } from './ProductionTreeContext';
