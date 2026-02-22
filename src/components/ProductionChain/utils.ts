@@ -140,6 +140,26 @@ export const findConsumers = (roots: ProductionNode[], targetTypeId: number): Co
   return sortByTier([...map.values()]);
 };
 
+export const totalQuantity = (roots: ProductionNode[], targetTypeId: number): number => {
+  let sum = 0;
+
+  const walk = (node: ProductionNode) => {
+    if (node.typeId === targetTypeId) {
+      sum += node.quantity;
+    }
+
+    for (const input of node.inputs) {
+      walk(input);
+    }
+  };
+
+  for (const root of roots) {
+    walk(root);
+  }
+
+  return sum;
+};
+
 export const summarizeTrees = (roots: ProductionNode[]): SummaryEntry[] => {
   const map = new Map<number, SummaryEntry>();
 

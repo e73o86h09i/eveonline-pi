@@ -1,23 +1,25 @@
 import type { FC } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import { Badge, Card } from 'flowbite-react';
-import type { ProductionNode, Tier } from '../../../types';
-import { findConsumers, findNode, formatDuration, formatQuantity, sortByTier, tierColors } from '../utils';
+import type { Tier } from '../../types';
+import { useProductionTree } from './ProductionTreeContext';
+import { findConsumers, findNode, formatDuration, formatQuantity, sortByTier, tierColors, totalQuantity } from './utils';
 
 type InfoCardProps = {
-  trees: ProductionNode[];
   typeId: number;
   name: string;
   tier: Tier;
-  quantity: number;
-  exact: boolean;
   initialPosition: { x: number; y: number };
   onClose: () => void;
+  onBringToFront: () => void;
+  onOpenCard: (event: React.MouseEvent, typeId: number, name: string, tier: Tier) => void;
+  onPositionChange: (position: { x: number; y: number }) => void;
 };
 
-const InfoCard: FC<InfoCardProps> = ({ trees, typeId, name, tier, quantity, exact, initialPosition, onClose }) => {
+const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, initialPosition, onClose, onBringToFront, onOpenCard, onPositionChange }) => {
+  const { trees, exactNumbers } = useProductionTree();
   const [position, setPosition] = useState(initialPosition);
-  const [isDragging, setIsDragging] = useState(false);
+  const positionRef = useRef(initialPosition);
   const dragStartRef = useRef({ x: 0, y: 0 });
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -27,26 +29,29 @@ const InfoCard: FC<InfoCardProps> = ({ trees, typeId, name, tier, quantity, exac
         return;
       }
 
-      setIsDragging(true);
+      onBringToFront();
+
       dragStartRef.current = { x: event.clientX - position.x, y: event.clientY - position.y };
 
       const handleMouseMove = (moveEvent: MouseEvent) => {
-        setPosition({
+        const next = {
           x: moveEvent.clientX - dragStartRef.current.x,
           y: moveEvent.clientY - dragStartRef.current.y,
-        });
+        };
+        positionRef.current = next;
+        setPosition(next);
       };
 
       const handleMouseUp = () => {
-        setIsDragging(false);
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        onPositionChange(positionRef.current);
       };
 
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     },
-    [position.x, position.y],
+    [position.x, position.y, onBringToFront, onPositionChange],
   );
 
   // Find the node to get schematic info
@@ -62,21 +67,25 @@ const InfoCard: FC<InfoCardProps> = ({ trees, typeId, name, tier, quantity, exac
   const isRawResource = !node || node.inputs.length === 0;
   const outputPerRun = node?.outputPerRun ?? 1;
   const cycleTime = node?.cycleTime ?? 0;
+  const quantity = totalQuantity(trees, typeId);
   const runs = cycleTime > 0 ? quantity / outputPerRun : 0;
   const totalTime = cycleTime * runs;
 
+  // Derive per-run input quantities from the node's own data (schematic-accurate)
+  const nodeRuns = node && cycleTime > 0 ? node.quantity / outputPerRun : 0;
   const sortedInputs = node ? sortByTier(node.inputs) : [];
   const perRun = sortedInputs.map((input) => ({
+    typeId: input.typeId,
     name: input.name,
     tier: input.tier,
-    qty: runs > 0 ? input.quantity / runs : 0,
+    qty: nodeRuns > 0 ? input.quantity / nodeRuns : 0,
   }));
 
   return (
     <div
       ref={cardRef}
       className="fixed z-50 w-80 cursor-move select-none shadow-2xl"
-      style={{ left: position.x, top: position.y, opacity: isDragging ? 0.9 : 1 }}
+      style={{ left: position.x, top: position.y }}
       onMouseDown={handleMouseDown}
     >
       <Card className="border-gray-600 bg-gray-800">
@@ -95,10 +104,10 @@ const InfoCard: FC<InfoCardProps> = ({ trees, typeId, name, tier, quantity, exac
         <div className="mt-3 space-y-3 text-sm">
           {/* Quantity summary */}
           <div className="text-gray-300">
-            Total: <span className="font-semibold text-white">{formatQuantity(quantity, exact)}×</span>
+            Total: <span className="font-semibold text-white">{formatQuantity(quantity, exactNumbers)}×</span>
             {runs > 0 && (
               <span className="ml-2 text-gray-400">
-                ({formatQuantity(runs, exact)} {runs === 1 ? 'run' : 'runs'}, {formatDuration(totalTime)})
+                ({formatQuantity(runs, exactNumbers)} {runs === 1 ? 'run' : 'runs'}, {formatDuration(totalTime)})
               </span>
             )}
           </div>
@@ -107,7 +116,7 @@ const InfoCard: FC<InfoCardProps> = ({ trees, typeId, name, tier, quantity, exac
           {!isRawResource && (
             <div className="border-t border-gray-700 pt-3">
               <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Recipe (per run, {formatDuration(cycleTime)})</div>
-              <div className="text-gray-300">
+              <div className="space-y-1 text-gray-300">
                 <div className="font-medium text-white">
                   {outputPerRun}× {name} =
                 </div>
@@ -117,17 +126,29 @@ const InfoCard: FC<InfoCardProps> = ({ trees, typeId, name, tier, quantity, exac
                       {input.tier}
                     </Badge>
                     <span>
-                      {formatQuantity(input.qty, exact)}× {input.name}
+                      {formatQuantity(input.qty, exactNumbers)}×{' '}
+                      <span
+                        className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
+                        onClick={(event) => onOpenCard(event, input.typeId, input.name, input.tier)}
+                      >
+                        {input.name}
+                      </span>
                     </span>
                   </div>
                 ))}
               </div>
               {runs > 1 && (
                 <div className="mt-2 text-xs text-gray-400">
-                  Total inputs ({formatQuantity(runs, exact)} runs):
-                  {sortedInputs.map((input) => (
+                  Total inputs ({formatQuantity(runs, exactNumbers)} runs):
+                  {perRun.map((input) => (
                     <div key={input.name} className="pl-3">
-                      {formatQuantity(input.quantity, exact)}× {input.name}
+                      {formatQuantity(input.qty * runs, exactNumbers)}×{' '}
+                      <span
+                        className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
+                        onClick={(event) => onOpenCard(event, input.typeId, input.name, input.tier)}
+                      >
+                        {input.name}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -139,17 +160,23 @@ const InfoCard: FC<InfoCardProps> = ({ trees, typeId, name, tier, quantity, exac
           {consumers.length > 0 && (
             <div className="border-t border-gray-700 pt-3">
               <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Used by</div>
-              <div className="space-y-1 text-gray-300">
+              <div className="space-y-1.5 text-gray-300">
                 {consumers.map((consumer) => (
                   <div key={consumer.typeId} className="flex items-center gap-1">
                     <Badge color={tierColors[consumer.tier] ?? tierColors.r0} size="xs" className="uppercase">
                       {consumer.tier}
                     </Badge>
                     <span>
-                      {consumer.name}: {formatQuantity(consumer.quantityPerRun, exact)}×/run
+                      <span
+                        className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
+                        onClick={(event) => onOpenCard(event, consumer.typeId, consumer.name, consumer.tier)}
+                      >
+                        {consumer.name}
+                      </span>
+                      : {formatQuantity(consumer.quantityPerRun, exactNumbers)}×/run
                       {consumer.totalRuns > 1 && (
                         <span className="ml-1 text-gray-400">
-                          ({formatQuantity(consumer.totalQuantity, exact)}× total, {formatQuantity(consumer.totalRuns, exact)} runs)
+                          ({formatQuantity(consumer.totalQuantity, exactNumbers)}× total, {formatQuantity(consumer.totalRuns, exactNumbers)} runs)
                         </span>
                       )}
                     </span>

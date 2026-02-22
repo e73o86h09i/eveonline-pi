@@ -1,18 +1,81 @@
 import type { FC } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Card, Spinner, TabItem, Tabs, ToggleSwitch } from 'flowbite-react';
-import type { CommoditySelection } from '../../types';
+import type { CommoditySelection, Tier } from '../../types';
 import { useMultiProductionChain } from '../../hooks';
+import { InfoCard } from './InfoCard';
 import { useProductionTree } from './ProductionTreeContext';
 import { ProductionTreeNode } from './ProductionTreeNode';
 import { ProductionSummary } from './ProductionSummary';
+
+type OpenCard = {
+  id: string;
+  typeId: number;
+  name: string;
+  tier: Tier;
+  position: { x: number; y: number };
+};
 
 type ProductionChainProps = {
   selections: CommoditySelection[];
 };
 
 const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
-  const { trees, loading, errors } = useMultiProductionChain(selections);
-  const { exactNumbers, setExactNumbers, activeTab, setActiveTab } = useProductionTree();
+  const { trees: resolvedTrees, loading, errors } = useMultiProductionChain(selections);
+  const { setTrees, exactNumbers, setExactNumbers, activeTab, setActiveTab } = useProductionTree();
+  const [openCards, setOpenCards] = useState<OpenCard[]>([]);
+
+  const allTrees = useMemo(() => resolvedTrees.map((resolved) => resolved.tree), [resolvedTrees]);
+
+  useEffect(() => {
+    setTrees(allTrees);
+  }, [allTrees, setTrees]);
+
+  const handleOpenCard = useCallback((event: React.MouseEvent, typeId: number, name: string, tier: Tier) => {
+    const cardId = `${typeId}`;
+    setOpenCards((prev) => {
+      const existingIndex = prev.findIndex((card) => card.id === cardId);
+      if (existingIndex !== -1) {
+        if (existingIndex === prev.length - 1) {
+          return prev;
+        }
+
+        return [...prev.slice(0, existingIndex), ...prev.slice(existingIndex + 1), prev[existingIndex]];
+      }
+
+      return [
+        ...prev,
+        {
+          id: cardId,
+          typeId,
+          name,
+          tier,
+          position: { x: event.clientX + 10, y: event.clientY - 20 },
+        },
+      ];
+    });
+  }, []);
+
+  const handleCloseCard = useCallback((cardId: string) => {
+    setOpenCards((prev) => prev.filter((card) => card.id !== cardId));
+  }, []);
+
+  const handlePositionChange = useCallback((cardId: string, position: { x: number; y: number }) => {
+    setOpenCards((prev) => prev.map((card) => (card.id === cardId ? { ...card, position } : card)));
+  }, []);
+
+  const handleBringToFront = useCallback((cardId: string) => {
+    setOpenCards((prev) => {
+      const index = prev.findIndex((card) => card.id === cardId);
+      if (index === -1 || index === prev.length - 1) {
+        return prev;
+      }
+
+      const card = prev[index];
+
+      return [...prev.slice(0, index), ...prev.slice(index + 1), card];
+    });
+  }, []);
 
   const hasSelections = selections.some((sel) => sel.typeId !== null);
 
@@ -43,11 +106,9 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
     );
   }
 
-  if (trees.length === 0) {
+  if (resolvedTrees.length === 0) {
     return null;
   }
-
-  const allTrees = trees.map((resolved) => resolved.tree);
 
   return (
     <Card className="mt-6 border-gray-700 bg-gray-800">
@@ -57,17 +118,31 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
       </div>
       <Tabs variant="underline" onActiveTabChange={setActiveTab}>
         <TabItem active={activeTab === 0} title="Tree">
-          {trees.map((resolved, idx) => (
+          {resolvedTrees.map((resolved, idx) => (
             <div key={resolved.selectionId}>
               {idx > 0 && <hr className="my-4 border-gray-700" />}
-              <ProductionTreeNode node={resolved.tree} path={`sel-${resolved.selectionId}:${resolved.tree.typeId}`} />
+              <ProductionTreeNode node={resolved.tree} path={`sel-${resolved.selectionId}:${resolved.tree.typeId}`} onOpenCard={handleOpenCard} />
             </div>
           ))}
         </TabItem>
         <TabItem active={activeTab === 1} title="Summary">
-          <ProductionSummary trees={allTrees} />
+          <ProductionSummary onOpenCard={handleOpenCard} />
         </TabItem>
       </Tabs>
+
+      {openCards.map((card) => (
+        <InfoCard
+          key={card.id}
+          typeId={card.typeId}
+          name={card.name}
+          tier={card.tier}
+          initialPosition={card.position}
+          onClose={() => handleCloseCard(card.id)}
+          onBringToFront={() => handleBringToFront(card.id)}
+          onOpenCard={handleOpenCard}
+          onPositionChange={(position) => handlePositionChange(card.id, position)}
+        />
+      ))}
     </Card>
   );
 };

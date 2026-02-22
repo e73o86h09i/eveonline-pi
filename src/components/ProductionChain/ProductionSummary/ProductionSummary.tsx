@@ -1,31 +1,20 @@
 import type { FC } from 'react';
-import { Fragment, useCallback, useMemo, useState } from 'react';
+import { Fragment, useMemo } from 'react';
 import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
-import type { ProductionNode, Tier } from '../../../types';
+import type { Tier } from '../../../types';
 import { TIERS } from '../../../types';
 import { useProductionTree } from '../ProductionTreeContext';
 import { type SummaryEntry, findCycleTime, formatDuration, formatQuantity, sortByTier, summarizeTrees, tierColors } from '../utils';
-import { InfoCard } from './InfoCard';
 
 type ProductionSummaryProps = {
-  trees: ProductionNode[];
-};
-
-type OpenCard = {
-  id: string;
-  typeId: number;
-  name: string;
-  tier: Tier;
-  quantity: number;
-  position: { x: number; y: number };
+  onOpenCard: (event: React.MouseEvent, typeId: number, name: string, tier: Tier) => void;
 };
 
 const tierLabels: Record<string, string> = Object.fromEntries(TIERS.map((tier) => [tier.tier, tier.label]));
 
-const ProductionSummary: FC<ProductionSummaryProps> = ({ trees }) => {
-  const { exactNumbers } = useProductionTree();
+const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
+  const { trees, exactNumbers } = useProductionTree();
   const entries = useMemo(() => summarizeTrees(trees), [trees]);
-  const [openCards, setOpenCards] = useState<OpenCard[]>([]);
 
   const targetProducts = useMemo(() => {
     const map = new Map<number, SummaryEntry>();
@@ -40,32 +29,6 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ trees }) => {
 
     return sortByTier([...map.values()]);
   }, [trees]);
-
-  const handleOpenCard = useCallback((event: React.MouseEvent, entry: SummaryEntry, prefix: string) => {
-    const cardId = `${prefix}-${entry.typeId}`;
-    setOpenCards((prev) => {
-      // Don't open if already open
-      if (prev.some((card) => card.id === cardId)) {
-        return prev;
-      }
-
-      return [
-        ...prev,
-        {
-          id: cardId,
-          typeId: entry.typeId,
-          name: entry.name,
-          tier: entry.tier,
-          quantity: entry.quantity,
-          position: { x: event.clientX + 10, y: event.clientY - 20 },
-        },
-      ];
-    });
-  }, []);
-
-  const handleCloseCard = useCallback((cardId: string) => {
-    setOpenCards((prev) => prev.filter((card) => card.id !== cardId));
-  }, []);
 
   if (targetProducts.length === 0) {
     return <p className="text-gray-400">No commodities selected.</p>;
@@ -100,7 +63,7 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ trees }) => {
                 </TableCell>
                 <TableCell className="font-semibold text-white">
                   <button
-                    onClick={(event) => handleOpenCard(event, target, 'target')}
+                    onClick={(event) => onOpenCard(event, target.typeId, target.name, target.tier)}
                     className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
                   >
                     {target.name}
@@ -132,7 +95,7 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ trees }) => {
                   </TableCell>
                   <TableCell className="font-medium text-white">
                     <button
-                      onClick={(event) => handleOpenCard(event, entry, 'material')}
+                      onClick={(event) => onOpenCard(event, entry.typeId, entry.name, entry.tier)}
                       className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
                     >
                       {entry.name}
@@ -148,20 +111,6 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ trees }) => {
           })}
         </TableBody>
       </Table>
-
-      {openCards.map((card) => (
-        <InfoCard
-          key={card.id}
-          trees={trees}
-          typeId={card.typeId}
-          name={card.name}
-          tier={card.tier}
-          quantity={card.quantity}
-          exact={exactNumbers}
-          initialPosition={card.position}
-          onClose={() => handleCloseCard(card.id)}
-        />
-      ))}
     </>
   );
 };

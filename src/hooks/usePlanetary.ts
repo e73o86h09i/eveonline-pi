@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CommodityType } from '../types';
 import { fetchAllCommodities } from '../api';
 
@@ -181,7 +181,7 @@ export const useMultiProductionChain = (selections: CommoditySelection[]) => {
   }, [selections]);
 
   // Only consider selections with a chosen commodity
-  const validSelections = selections.filter((sel) => sel.typeId !== null);
+  const validSelections = useMemo(() => selections.filter((sel) => sel.typeId !== null), [selections]);
   const loading =
     validSelections.length > 0 &&
     validSelections.some((sel) => {
@@ -191,18 +191,29 @@ export const useMultiProductionChain = (selections: CommoditySelection[]) => {
       return !result || result.resolvedKey !== expectedKey;
     });
 
-  const trees: ResolvedTree[] = [];
-  const errors: string[] = [];
-  for (const sel of validSelections) {
-    const result = resultMap.get(sel.id);
-    if (result?.tree) {
-      trees.push({ selectionId: sel.id, tree: result.tree });
+  const trees = useMemo(() => {
+    const result: ResolvedTree[] = [];
+    for (const sel of validSelections) {
+      const entry = resultMap.get(sel.id);
+      if (entry?.tree) {
+        result.push({ selectionId: sel.id, tree: entry.tree });
+      }
     }
 
-    if (result?.error) {
-      errors.push(result.error);
+    return result;
+  }, [validSelections, resultMap]);
+
+  const errors = useMemo(() => {
+    const result: string[] = [];
+    for (const sel of validSelections) {
+      const entry = resultMap.get(sel.id);
+      if (entry?.error) {
+        result.push(entry.error);
+      }
     }
-  }
+
+    return result;
+  }, [validSelections, resultMap]);
 
   return { trees, loading, errors };
 };

@@ -2,6 +2,8 @@ import { createContext, useContext } from 'react';
 import type { ProductionNode } from '../../types';
 
 type ProductionTreeContextValue = {
+  trees: ProductionNode[];
+  setTrees: (trees: ProductionNode[]) => void;
   expandedNodes: Set<string>;
   toggleNode: (path: string, node: ProductionNode) => void;
   exactNumbers: boolean;
