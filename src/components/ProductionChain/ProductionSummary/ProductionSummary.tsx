@@ -11,7 +11,7 @@ type ProductionSummaryProps = {
   tree: ProductionNode;
 };
 
-const tierLabels: Record<string, string> = Object.fromEntries(TIERS.map((t) => [t.tier, t.label]));
+const tierLabels: Record<string, string> = Object.fromEntries(TIERS.map((tier) => [tier.tier, tier.label]));
 
 const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
   const { exactNumbers } = useProductionTree();

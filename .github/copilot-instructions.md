@@ -59,6 +59,18 @@ Use arrow-function syntax (`const fn = () => {}`) for **all** functions — comp
 - Module-scoped helpers: `const buildTree = async () => { ... };`
 - Inner/nested functions: `const walk = (node: Node) => { ... };`
 
+### Variable Naming
+Never use single-character variable names. Use descriptive names that convey the variable's purpose. The only exceptions are:
+- `i`, `j`, `k` — commonly used as loop indexes
+- `a`, `b` — commonly used in comparator/sort callbacks
+
+Examples of what **not** to do:
+- `(n: number)` → use `value`, `quantity`, etc.
+- `.map((t) => ...)` → use `tier`, `type`, etc.
+- `.map((c) => ...)` → use `consumer`, `commodity`, etc.
+- `(e: React.ChangeEvent)` → use `event`
+- `(g) => g.type_ids` → use `group`
+
 ### Utility Functions Organization
 Keep helper functions close to where they are used, following low coupling / high cohesion:
 - **Component-level utils** — If helpers are only used within a single component folder, put them in a `utils.ts` file inside that folder (e.g. `ProductionChain/utils.ts`).

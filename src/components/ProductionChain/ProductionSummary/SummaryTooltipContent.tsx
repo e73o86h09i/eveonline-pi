@@ -18,7 +18,7 @@ const SummaryTooltipContent: FC<SummaryTooltipContentProps> = ({ tree, typeId, n
     return <span>{name} — raw resource, extracted from planets</span>;
   }
 
-  const showTotal = consumers.some((c) => c.totalRuns > 1);
+  const showTotal = consumers.some((consumer) => consumer.totalRuns > 1);
 
   return (
     <div className="text-left">
@@ -27,9 +27,9 @@ const SummaryTooltipContent: FC<SummaryTooltipContentProps> = ({ tree, typeId, n
       </div>
       <div className="mb-1 text-xs text-gray-300">Used per run:</div>
       <div className="text-xs">
-        {consumers.map((c) => (
-          <div key={c.parentTypeId} className="pl-3">
-            {formatQuantity(c.quantityPerRun, exact)}× → {c.parentName}
+        {consumers.map((consumer) => (
+          <div key={consumer.parentTypeId} className="pl-3">
+            {formatQuantity(consumer.quantityPerRun, exact)}× → {consumer.parentName}
           </div>
         ))}
       </div>
@@ -37,9 +37,9 @@ const SummaryTooltipContent: FC<SummaryTooltipContentProps> = ({ tree, typeId, n
         <div className="mt-1 border-t border-gray-600 pt-1">
           <div className="text-xs text-gray-300">Total:</div>
           <div className="text-xs">
-            {consumers.map((c) => (
-              <div key={c.parentTypeId} className="pl-3">
-                {formatQuantity(c.totalQuantity, exact)}× → {c.parentName} ({formatQuantity(c.totalRuns, exact)} runs)
+            {consumers.map((consumer) => (
+              <div key={consumer.parentTypeId} className="pl-3">
+                {formatQuantity(consumer.totalQuantity, exact)}× → {consumer.parentName} ({formatQuantity(consumer.totalRuns, exact)} runs)
               </div>
             ))}
           </div>

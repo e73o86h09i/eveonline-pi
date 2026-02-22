@@ -6,17 +6,17 @@ export const sortByTier = <T extends { tier: string }>(items: T[]): T[] => {
   return [...items].sort((a, b) => (tierOrder[a.tier] ?? 99) - (tierOrder[b.tier] ?? 99));
 };
 
-export const formatQuantity = (n: number, exact = false): string => {
+export const formatQuantity = (value: number, exact = false): string => {
   if (exact) {
-    return n.toLocaleString();
+    return value.toLocaleString();
   }
-  if (n >= 1_000_000) {
-    return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
   }
-  if (n >= 1_000) {
-    return `${(n / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
+  if (value >= 1_000) {
+    return `${(value / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
   }
-  return n.toLocaleString();
+  return value.toLocaleString();
 };
 
 export const formatDuration = (seconds: number): string => {

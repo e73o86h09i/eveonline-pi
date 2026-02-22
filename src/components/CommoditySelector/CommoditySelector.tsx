@@ -28,14 +28,14 @@ const CommoditySelector: FC<CommoditySelectorProps> = ({ commodities, loading, s
     return map;
   }, [commodities]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
     onSelect(value ? Number(value) : null);
   };
 
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseInt(e.target.value, 10);
-    onQuantityChange(Number.isNaN(val) || val < 1 ? 1 : val);
+  const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseInt(event.target.value, 10);
+    onQuantityChange(Number.isNaN(parsed) || parsed < 1 ? 1 : parsed);
   };
 
   if (loading) {

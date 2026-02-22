@@ -37,8 +37,8 @@ import { fetchSchematic, fetchType } from '../api';
 import { TIERS } from '../types';
 
 const getTierByGroupId = (groupId: number): Tier => {
-  const tier = TIERS.find((t) => t.groupIds.includes(groupId));
-  return tier?.tier ?? 'r0';
+  const found = TIERS.find((tierInfo) => tierInfo.groupIds.includes(groupId));
+  return found?.tier ?? 'r0';
 };
 
 const buildTree = async (id: number, quantity: number): Promise<ProductionNode> => {
