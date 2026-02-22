@@ -19,6 +19,7 @@ export const fetchType = async (typeId: number): Promise<CommodityType> => {
 
   const data: CommodityType = await response.json();
   typeCache.set(typeId, data);
+
   return data;
 };
 
@@ -35,6 +36,7 @@ export const fetchSchematic = async (schematicId: number): Promise<Schematic> =>
 
   const data: Schematic = await response.json();
   schematicCache.set(schematicId, data);
+
   return data;
 };
 
@@ -51,6 +53,7 @@ export const fetchGroup = async (groupId: number): Promise<CommodityGroup> => {
 
   const data: CommodityGroup = await response.json();
   groupCache.set(groupId, data);
+
   return data;
 };
 
@@ -59,5 +62,6 @@ export const fetchAllCommodities = async (): Promise<CommodityType[]> => {
   const groups = await Promise.all(groupIds.map(fetchGroup));
   const allTypeIds = groups.flatMap((group) => group.type_ids);
   const types = await Promise.all(allTypeIds.map(fetchType));
+
   return types;
 };

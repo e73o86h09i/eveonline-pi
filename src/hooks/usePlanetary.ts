@@ -38,6 +38,7 @@ import { TIERS } from '../types';
 
 const getTierByGroupId = (groupId: number): Tier => {
   const found = TIERS.find((tierInfo) => tierInfo.groupIds.includes(groupId));
+
   return found?.tier ?? 'r0';
 };
 
@@ -107,6 +108,7 @@ export const useProductionChain = (typeId: number | null, quantity = 1) => {
   }
 
   const loading = resolvedKey !== requestKey;
+
   return {
     tree: loading ? null : tree,
     loading,

@@ -19,5 +19,6 @@ export const useProductionTree = (): ProductionTreeContextValue => {
   if (!ctx) {
     throw new Error('useProductionTree must be used within a ProductionTreeContext provider');
   }
+
   return ctx;
 };

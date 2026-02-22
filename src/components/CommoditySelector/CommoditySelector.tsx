@@ -21,10 +21,12 @@ const CommoditySelector: FC<CommoditySelectorProps> = ({ commodities, loading, s
       group.push(commodity);
       map.set(commodity.group_id, group);
     }
+
     // Sort commodities within each group alphabetically
     for (const [, items] of map) {
       items.sort((a, b) => a.name.en.localeCompare(b.name.en));
     }
+
     return map;
   }, [commodities]);
 
@@ -63,6 +65,7 @@ const CommoditySelector: FC<CommoditySelectorProps> = ({ commodities, loading, s
               if (!items?.length) {
                 return null;
               }
+
               return (
                 <optgroup key={tier.groupIds[0]} label={tier.label}>
                   {items.map((item) => (

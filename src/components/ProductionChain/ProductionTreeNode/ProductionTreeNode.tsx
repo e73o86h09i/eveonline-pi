@@ -22,7 +22,9 @@ const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path
   const toggleExpanded = () => {
     toggleNode(path, node);
   };
+
   const sortedInputs = sortByTier(node.inputs);
+
   return (
     <div className={depth > 0 ? 'ml-6 border-l border-gray-600 pl-4' : ''}>
       <div className="flex items-center gap-1 py-1">

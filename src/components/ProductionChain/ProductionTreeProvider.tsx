@@ -10,6 +10,7 @@ const collectDescendantPaths = (node: ProductionNode, parentPath: string): strin
     paths.push(childPath);
     paths.push(...collectDescendantPaths(input, childPath));
   }
+
   return paths;
 };
 
@@ -29,6 +30,7 @@ const ProductionTreeProvider: FC<{ children: ReactNode }> = ({ children }) => {
       } else {
         next.add(path);
       }
+
       return next;
     });
   }, []);

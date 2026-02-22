@@ -10,12 +10,15 @@ export const formatQuantity = (value: number, exact = false): string => {
   if (exact) {
     return value.toLocaleString();
   }
+
   if (value >= 1_000_000) {
     return `${(value / 1_000_000).toFixed(1).replace(/\.0$/, '')}M`;
   }
+
   if (value >= 1_000) {
     return `${(value / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
   }
+
   return value.toLocaleString();
 };
 
@@ -27,12 +30,15 @@ export const formatDuration = (seconds: number): string => {
   if (days > 0) {
     parts.push(`${days}d`);
   }
+
   if (hours > 0) {
     parts.push(`${hours}h`);
   }
+
   if (minutes > 0) {
     parts.push(`${minutes}m`);
   }
+
   return parts.join(' ') || '0m';
 };
 
@@ -64,12 +70,14 @@ export const findNode = (node: ProductionNode, typeId: number): ProductionNode |
   if (node.typeId === typeId) {
     return node;
   }
+
   for (const input of node.inputs) {
     const found = findNode(input, typeId);
     if (found) {
       return found;
     }
   }
+
   return null;
 };
 
@@ -78,8 +86,10 @@ export const findCycleTime = (root: ProductionNode, typeId: number, totalQuantit
   if (!node || !node.cycleTime) {
     return 0;
   }
+
   const outputPerRun = node.outputPerRun ?? 1;
   const runs = Math.ceil(totalQuantity / outputPerRun);
+
   return node.cycleTime * runs;
 };
 
@@ -107,11 +117,13 @@ export const findConsumers = (root: ProductionNode, targetTypeId: number): Consu
           });
         }
       }
+
       walk(input);
     }
   };
 
   walk(root);
+
   return sortByTier([...map.values()]);
 };
 
@@ -125,6 +137,7 @@ export const summarizeTree = (root: ProductionNode): SummaryEntry[] => {
     } else {
       map.set(node.typeId, { typeId: node.typeId, name: node.name, tier: node.tier, quantity: node.quantity });
     }
+
     for (const input of node.inputs) {
       walk(input);
     }

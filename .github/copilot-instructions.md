@@ -71,6 +71,11 @@ Examples of what **not** to do:
 - `(e: React.ChangeEvent)` → use `event`
 - `(g) => g.type_ids` → use `group`
 
+### Blank Lines
+Enforced by ESLint via `@stylistic/padding-line-between-statements`:
+- **Before `return`** — add a blank line before every `return` statement, unless it is the only statement in the block.
+- **After block-like statements** — add a blank line after `if`/`else`, `for`, `while`, `switch`, `try`/`catch`/`finally` blocks before the next statement.
+
 ### Utility Functions Organization
 Keep helper functions close to where they are used, following low coupling / high cohesion:
 - **Component-level utils** — If helpers are only used within a single component folder, put them in a `utils.ts` file inside that folder (e.g. `ProductionChain/utils.ts`).
