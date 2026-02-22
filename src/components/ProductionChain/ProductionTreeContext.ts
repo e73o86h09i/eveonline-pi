@@ -14,10 +14,10 @@ const ProductionTreeContext = createContext<ProductionTreeContextValue | null>(n
 
 export { ProductionTreeContext };
 
-export function useProductionTree(): ProductionTreeContextValue {
+export const useProductionTree = (): ProductionTreeContextValue => {
   const ctx = useContext(ProductionTreeContext);
   if (!ctx) {
     throw new Error('useProductionTree must be used within a ProductionTreeContext provider');
   }
   return ctx;
-}
+};

@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { ProductionTreeContext } from './ProductionTreeContext';
 import type { ProductionNode } from '../../types';
 
-function collectDescendantPaths(node: ProductionNode, parentPath: string): string[] {
+const collectDescendantPaths = (node: ProductionNode, parentPath: string): string[] => {
   const paths: string[] = [];
   for (const input of node.inputs) {
     const childPath = `${parentPath}.${input.typeId}`;
@@ -11,7 +11,7 @@ function collectDescendantPaths(node: ProductionNode, parentPath: string): strin
     paths.push(...collectDescendantPaths(input, childPath));
   }
   return paths;
-}
+};
 
 const ProductionTreeProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [exactNumbers, setExactNumbers] = useState(false);

@@ -4,7 +4,7 @@ import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow 
 import type { ProductionNode } from '../../types';
 import { TIERS } from '../../types';
 import { useProductionTree } from './ProductionTreeContext';
-import { formatDuration, formatQuantity, summarizeTree, tierColors } from './utils';
+import { findCycleTime, formatDuration, formatQuantity, summarizeTree, tierColors } from './utils';
 
 type ProductionSummaryProps = {
   tree: ProductionNode;
@@ -75,29 +75,5 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
     </Table>
   );
 };
-
-function findCycleTime(root: ProductionNode, typeId: number, _totalQuantity: number): number {
-  // Find the first node matching typeId to get cycleTime and outputPerRun
-  const node = findNode(root, typeId);
-  if (!node || !node.cycleTime) {
-    return 0;
-  }
-  const outputPerRun = node.outputPerRun ?? 1;
-  const runs = Math.ceil(_totalQuantity / outputPerRun);
-  return node.cycleTime * runs;
-}
-
-function findNode(node: ProductionNode, typeId: number): ProductionNode | null {
-  if (node.typeId === typeId) {
-    return node;
-  }
-  for (const input of node.inputs) {
-    const found = findNode(input, typeId);
-    if (found) {
-      return found;
-    }
-  }
-  return null;
-}
 
 export { ProductionSummary };

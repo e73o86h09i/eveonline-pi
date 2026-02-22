@@ -53,6 +53,18 @@ The product `quantity` is the **output per run** and must be used to calculate t
 ## Code Style
 Prefer `type` over `interface` for defining types, unless you need to use features that are only available in `interface`, such as declaration merging or implementing classes. This is because `type` is more flexible and can be used to define a wider range of types, such as union types, intersection types, and mapped types.
 
+### Arrow Functions
+Use arrow-function syntax (`const fn = () => {}`) for **all** functions — components, hooks, helpers, API functions, and utilities. Never use the `function` keyword. This includes:
+- Exported functions: `export const myHelper = () => { ... };`
+- Module-scoped helpers: `const buildTree = async () => { ... };`
+- Inner/nested functions: `const walk = (node: Node) => { ... };`
+
+### Utility Functions Organization
+Keep helper functions close to where they are used, following low coupling / high cohesion:
+- **Component-level utils** — If helpers are only used within a single component folder, put them in a `utils.ts` file inside that folder (e.g. `ProductionChain/utils.ts`).
+- **Shared utils** — If helpers are used across multiple component folders or layers (hooks, api, etc.), put them in `src/utils.ts` (or `src/utils/` if there are many).
+- **Module-scoped helpers** — If a helper is only used in a single file (not exported), keep it in the same file above the component or hook that uses it.
+
 ## Component Organization
 Keep every component in a separate file named after the component with `.tsx` extension. For example, `Header.tsx` for the `Header` component.
 

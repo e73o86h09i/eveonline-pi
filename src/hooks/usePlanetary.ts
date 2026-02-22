@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CommodityType } from '../types';
 import { fetchAllCommodities } from '../api';
 
-export function useCommodities() {
+export const useCommodities = () => {
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -30,18 +30,18 @@ export function useCommodities() {
   }, []);
 
   return { commodities, loading, error };
-}
+};
 
 import type { ProductionNode, Tier } from '../types';
 import { fetchSchematic, fetchType } from '../api';
 import { TIERS } from '../types';
 
-function getTierByGroupId(groupId: number): Tier {
+const getTierByGroupId = (groupId: number): Tier => {
   const tier = TIERS.find((t) => t.groupIds.includes(groupId));
   return tier?.tier ?? 'r0';
-}
+};
 
-async function buildTree(id: number, quantity: number): Promise<ProductionNode> {
+const buildTree = async (id: number, quantity: number): Promise<ProductionNode> => {
   const typeData = await fetchType(id);
   const tier = getTierByGroupId(typeData.group_id);
   const node: ProductionNode = {
@@ -69,9 +69,9 @@ async function buildTree(id: number, quantity: number): Promise<ProductionNode> 
   }
 
   return node;
-}
+};
 
-export function useProductionChain(typeId: number | null, quantity = 1) {
+export const useProductionChain = (typeId: number | null, quantity = 1) => {
   const [tree, setTree] = useState<ProductionNode | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [resolvedKey, setResolvedKey] = useState<string | null>(null);
@@ -112,4 +112,4 @@ export function useProductionChain(typeId: number | null, quantity = 1) {
     loading,
     error: loading ? null : error,
   };
-}
+};

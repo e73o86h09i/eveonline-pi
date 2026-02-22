@@ -2,11 +2,11 @@ import type { ProductionNode, Tier } from '../../types';
 
 const tierOrder: Record<string, number> = { p4: 0, p3: 1, p2: 2, p1: 3, r0: 4 };
 
-export function sortByTier<T extends { tier: string }>(items: T[]): T[] {
+export const sortByTier = <T extends { tier: string }>(items: T[]): T[] => {
   return [...items].sort((a, b) => (tierOrder[a.tier] ?? 99) - (tierOrder[b.tier] ?? 99));
-}
+};
 
-export function formatQuantity(n: number, exact = false): string {
+export const formatQuantity = (n: number, exact = false): string => {
   if (exact) {
     return n.toLocaleString();
   }
@@ -17,9 +17,9 @@ export function formatQuantity(n: number, exact = false): string {
     return `${(n / 1_000).toFixed(1).replace(/\.0$/, '')}k`;
   }
   return n.toLocaleString();
-}
+};
 
-export function formatDuration(seconds: number): string {
+export const formatDuration = (seconds: number): string => {
   const days = Math.floor(seconds / 86400);
   const hours = Math.floor((seconds % 86400) / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -34,7 +34,7 @@ export function formatDuration(seconds: number): string {
     parts.push(`${minutes}m`);
   }
   return parts.join(' ') || '0m';
-}
+};
 
 export const tierColors: Record<string, string> = {
   r0: 'gray',
@@ -51,10 +51,33 @@ export type SummaryEntry = {
   quantity: number;
 };
 
-export function summarizeTree(root: ProductionNode): SummaryEntry[] {
+export const findNode = (node: ProductionNode, typeId: number): ProductionNode | null => {
+  if (node.typeId === typeId) {
+    return node;
+  }
+  for (const input of node.inputs) {
+    const found = findNode(input, typeId);
+    if (found) {
+      return found;
+    }
+  }
+  return null;
+};
+
+export const findCycleTime = (root: ProductionNode, typeId: number, totalQuantity: number): number => {
+  const node = findNode(root, typeId);
+  if (!node || !node.cycleTime) {
+    return 0;
+  }
+  const outputPerRun = node.outputPerRun ?? 1;
+  const runs = Math.ceil(totalQuantity / outputPerRun);
+  return node.cycleTime * runs;
+};
+
+export const summarizeTree = (root: ProductionNode): SummaryEntry[] => {
   const map = new Map<number, SummaryEntry>();
 
-  function walk(node: ProductionNode) {
+  const walk = (node: ProductionNode) => {
     const existing = map.get(node.typeId);
     if (existing) {
       existing.quantity += node.quantity;
@@ -64,7 +87,7 @@ export function summarizeTree(root: ProductionNode): SummaryEntry[] {
     for (const input of node.inputs) {
       walk(input);
     }
-  }
+  };
 
   // Walk children only — exclude root since it's the final product, not something to produce
   for (const input of root.inputs) {
@@ -72,4 +95,4 @@ export function summarizeTree(root: ProductionNode): SummaryEntry[] {
   }
 
   return sortByTier([...map.values()]);
-}
+};
