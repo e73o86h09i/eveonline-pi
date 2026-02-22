@@ -1,7 +1,7 @@
 import type { FC } from 'react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Card, Spinner, TabItem, Tabs, ToggleSwitch } from 'flowbite-react';
-import type { CommoditySelection, Tier } from '../../types';
+import type { CommoditySelection, ProductionNode, Tier } from '../../types';
 import { useMultiProductionChain } from '../../hooks';
 import { InfoCard } from './InfoCard';
 import { useProductionTree } from './ProductionTreeContext';
@@ -26,6 +26,23 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
   const [openCards, setOpenCards] = useState<OpenCard[]>([]);
 
   const allTrees = useMemo(() => resolvedTrees.map((resolved) => resolved.tree), [resolvedTrees]);
+
+  // Derive valid typeIds from current trees so stale cards are hidden without an effect
+  const validTypeIds = useMemo(() => {
+    const ids = new Set<number>();
+    const collect = (node: ProductionNode) => {
+      ids.add(node.typeId);
+      for (const input of node.inputs) {
+        collect(input);
+      }
+    };
+
+    for (const tree of allTrees) {
+      collect(tree);
+    }
+
+    return ids;
+  }, [allTrees]);
 
   useEffect(() => {
     setTrees(allTrees);
@@ -87,7 +104,15 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
     );
   }
 
-  if (loading) {
+  if (errors.length > 0) {
+    return (
+      <Alert color="failure" className="mt-6">
+        <span>Error loading production chain: {errors.join(', ')}</span>
+      </Alert>
+    );
+  }
+
+  if (resolvedTrees.length === 0 && loading) {
     return (
       <Card className="mt-6 border-gray-700 bg-gray-800">
         <div className="flex items-center gap-2 text-gray-400">
@@ -98,14 +123,6 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
     );
   }
 
-  if (errors.length > 0) {
-    return (
-      <Alert color="failure" className="mt-6">
-        <span>Error loading production chain: {errors.join(', ')}</span>
-      </Alert>
-    );
-  }
-
   if (resolvedTrees.length === 0) {
     return null;
   }
@@ -113,7 +130,10 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
   return (
     <Card className="mt-6 border-gray-700 bg-gray-800">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-lg font-bold text-white">Production Chain</h2>
+        <h2 className="flex items-center gap-2 text-lg font-bold text-white">
+          Production Chain
+          {loading && <Spinner size="sm" />}
+        </h2>
         <ToggleSwitch checked={exactNumbers} onChange={setExactNumbers} label="Exact numbers" sizing="sm" />
       </div>
       <Tabs variant="underline" onActiveTabChange={setActiveTab}>
@@ -130,19 +150,21 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
         </TabItem>
       </Tabs>
 
-      {openCards.map((card) => (
-        <InfoCard
-          key={card.id}
-          typeId={card.typeId}
-          name={card.name}
-          tier={card.tier}
-          initialPosition={card.position}
-          onClose={() => handleCloseCard(card.id)}
-          onBringToFront={() => handleBringToFront(card.id)}
-          onOpenCard={handleOpenCard}
-          onPositionChange={(position) => handlePositionChange(card.id, position)}
-        />
-      ))}
+      {openCards
+        .filter((card) => loading || validTypeIds.has(card.typeId))
+        .map((card) => (
+          <InfoCard
+            key={card.id}
+            typeId={card.typeId}
+            name={card.name}
+            tier={card.tier}
+            initialPosition={card.position}
+            onClose={() => handleCloseCard(card.id)}
+            onBringToFront={() => handleBringToFront(card.id)}
+            onOpenCard={handleOpenCard}
+            onPositionChange={(position) => handlePositionChange(card.id, position)}
+          />
+        ))}
     </Card>
   );
 };
