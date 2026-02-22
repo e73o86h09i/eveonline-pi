@@ -1,6 +1,7 @@
 import type { FC } from 'react';
 import { Badge } from 'flowbite-react';
 import type { ProductionNode, Tier } from '../../../types';
+import { CommodityIcon } from '../../common/CommodityIcon';
 import { useProductionTree } from '../ProductionTreeContext';
 import { formatDuration, formatQuantity, sortByTier, tierColors } from '../utils';
 
@@ -46,6 +47,7 @@ const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path
           <Badge color={color} className="uppercase">
             {node.tier}
           </Badge>
+          <CommodityIcon typeId={node.typeId} name={node.name} />
           <button
             onClick={(event) => onOpenCard(event, node.typeId, node.name, node.tier)}
             className="cursor-pointer border-b border-dashed border-gray-600 font-medium text-white hover:text-blue-400"

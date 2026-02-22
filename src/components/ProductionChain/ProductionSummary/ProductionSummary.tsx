@@ -3,6 +3,7 @@ import { Fragment, useMemo } from 'react';
 import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import type { Tier } from '../../../types';
 import { TIERS } from '../../../types';
+import { CommodityIcon } from '../../common/CommodityIcon';
 import { useProductionTree } from '../ProductionTreeContext';
 import { type SummaryEntry, findCycleTime, formatDuration, formatQuantity, sortByTier, summarizeTrees, tierColors } from '../utils';
 
@@ -62,12 +63,15 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
                   </Badge>
                 </TableCell>
                 <TableCell className="font-semibold text-white">
-                  <button
-                    onClick={(event) => onOpenCard(event, target.typeId, target.name, target.tier)}
-                    className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
-                  >
-                    {target.name}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <CommodityIcon typeId={target.typeId} name={target.name} />
+                    <button
+                      onClick={(event) => onOpenCard(event, target.typeId, target.name, target.tier)}
+                      className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
+                    >
+                      {target.name}
+                    </button>
+                  </div>
                 </TableCell>
                 <TableCell className="text-right text-gray-300">{formatQuantity(target.quantity, exactNumbers)}</TableCell>
                 <TableCell className="text-right text-gray-400">{cycleTime > 0 ? formatDuration(cycleTime) : '—'}</TableCell>
@@ -94,12 +98,15 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
                     </Badge>
                   </TableCell>
                   <TableCell className="font-medium text-white">
-                    <button
-                      onClick={(event) => onOpenCard(event, entry.typeId, entry.name, entry.tier)}
-                      className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
-                    >
-                      {entry.name}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <CommodityIcon typeId={entry.typeId} name={entry.name} />
+                      <button
+                        onClick={(event) => onOpenCard(event, entry.typeId, entry.name, entry.tier)}
+                        className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
+                      >
+                        {entry.name}
+                      </button>
+                    </div>
                   </TableCell>
                   <TableCell className="text-right text-gray-300">{formatQuantity(entry.quantity, exactNumbers)}</TableCell>
                   <TableCell className="text-right text-gray-400">

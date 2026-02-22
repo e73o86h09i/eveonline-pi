@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import { Badge, Card } from 'flowbite-react';
 import type { Tier } from '../../types';
+import { CommodityIcon } from '../common/CommodityIcon';
 import { useProductionTree } from './ProductionTreeContext';
 import { findConsumers, findNode, formatDuration, formatQuantity, sortByTier, tierColors, totalQuantity } from './utils';
 
@@ -94,6 +95,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, initialPosition, onCl
             <Badge color={tierColors[tier] ?? tierColors.r0} className="uppercase">
               {tier}
             </Badge>
+            <CommodityIcon typeId={typeId} name={name} />
             <span className="font-bold text-white">{name}</span>
           </div>
           <button onClick={onClose} className="rounded p-1 text-gray-400 hover:bg-gray-700 hover:text-white" aria-label="Close">
@@ -173,7 +175,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, initialPosition, onCl
                       >
                         {consumer.name}
                       </span>
-                      : {formatQuantity(consumer.quantityPerRun, exactNumbers)}×/run
+                      : {formatQuantity(consumer.quantityPerRun, exactNumbers)}× / run
                       {consumer.totalRuns > 1 && (
                         <span className="ml-1 text-gray-400">
                           ({formatQuantity(consumer.totalQuantity, exactNumbers)}× total, {formatQuantity(consumer.totalRuns, exactNumbers)} runs)
