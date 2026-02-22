@@ -25,17 +25,28 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
   const positionRef = useRef(initialPosition);
   const dragStartRef = useRef({ x: 0, y: 0 });
   const cardElRef = useRef<HTMLDivElement | null>(null);
-  const initialAdjustDoneRef = useRef(false);
+  const hasBeenDraggedRef = useRef(false);
+
+  // Find the node to get schematic info
+  let node: ProductionNode | null = null;
+  for (const tree of trees) {
+    node = findNode(tree, typeId);
+    if (node) {
+      break;
+    }
+  }
+
+  const consumers = findConsumers(trees, typeId);
+  const isRawResource = !node || node.inputs.length === 0;
+  const { planets, loading: planetsLoading } = usePlanets(isRawResource ? typeId : null);
 
   const handleCardRef = useCallback(
     (element: HTMLDivElement | null) => {
       cardElRef.current = element;
 
-      if (!element || initialAdjustDoneRef.current) {
+      if (!element || hasBeenDraggedRef.current) {
         return;
       }
-
-      initialAdjustDoneRef.current = true;
 
       const gap = 10;
       const rect = element.getBoundingClientRect();
@@ -65,7 +76,9 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
         onPositionChange(clamped);
       }
     },
-    [onPositionChange],
+    // planetsLoading is intentionally included to re-trigger clamping when card height changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onPositionChange, planetsLoading],
   );
 
   const handleMouseDown = useCallback(
@@ -91,6 +104,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
       const handleMouseUp = () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        hasBeenDraggedRef.current = true;
         onPositionChange(positionRef.current);
       };
 
@@ -100,18 +114,6 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
     [position.x, position.y, onBringToFront, onPositionChange],
   );
 
-  // Find the node to get schematic info
-  let node: ProductionNode | null = null;
-  for (const tree of trees) {
-    node = findNode(tree, typeId);
-    if (node) {
-      break;
-    }
-  }
-
-  const consumers = findConsumers(trees, typeId);
-  const isRawResource = !node || node.inputs.length === 0;
-  const { planets, loading: planetsLoading } = usePlanets(isRawResource ? typeId : null);
   const outputPerRun = node?.outputPerRun ?? 1;
   const cycleTime = node?.cycleTime ?? 0;
   const quantity = totalQuantity(trees, typeId);
