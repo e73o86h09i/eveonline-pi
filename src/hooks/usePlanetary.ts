@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CommodityType } from '../types';
-import { fetchAllCommodities } from '../api';
+import { fetchAllCommodities, fetchPlanetsForResource } from '../api';
 
 export const useCommodities = () => {
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
@@ -216,4 +216,53 @@ export const useMultiProductionChain = (selections: CommoditySelection[]) => {
   }, [validSelections, resultMap]);
 
   return { trees, loading, errors };
+};
+
+export type PlanetInfo = {
+  typeId: number;
+  name: string;
+};
+
+type PlanetResult = {
+  planets: PlanetInfo[];
+  status: 'loading' | 'done';
+};
+
+export const usePlanets = (resourceTypeId: number | null) => {
+  const [results, setResults] = useState<Map<number, PlanetResult>>(() => new Map());
+
+  useEffect(() => {
+    if (resourceTypeId === null) {
+      return;
+    }
+
+    let cancelled = false;
+
+    fetchPlanetsForResource(resourceTypeId)
+      .then((data) => {
+        if (!cancelled) {
+          setResults((prev) => new Map(prev).set(resourceTypeId, { planets: data, status: 'done' }));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setResults((prev) => new Map(prev).set(resourceTypeId, { planets: [], status: 'done' }));
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [resourceTypeId]);
+
+  if (resourceTypeId === null) {
+    return { planets: [] as PlanetInfo[], loading: false };
+  }
+
+  const result = results.get(resourceTypeId);
+
+  return {
+    planets: result?.planets ?? [],
+    loading: !result,
+  };
 };

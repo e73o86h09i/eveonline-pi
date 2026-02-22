@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import { useCallback, useRef, useState } from 'react';
 import { Badge, Card } from 'flowbite-react';
 import type { Tier } from '../../types';
+import { usePlanets } from '../../hooks';
 import { CommodityIcon } from '../common/CommodityIcon';
 import { useProductionTree } from './ProductionTreeContext';
 import { findConsumers, findNode, formatDuration, formatQuantity, sortByTier, tierColors, totalQuantity } from './utils';
@@ -66,6 +67,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, initialPosition, onCl
 
   const consumers = findConsumers(trees, typeId);
   const isRawResource = !node || node.inputs.length === 0;
+  const { planets, loading: planetsLoading } = usePlanets(isRawResource ? typeId : null);
   const outputPerRun = node?.outputPerRun ?? 1;
   const cycleTime = node?.cycleTime ?? 0;
   const quantity = totalQuantity(trees, typeId);
@@ -188,8 +190,26 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, initialPosition, onCl
             </div>
           )}
 
-          {/* Raw resource notice */}
-          {isRawResource && <div className="border-t border-gray-700 pt-3 text-gray-400">Raw resource, extracted from planets</div>}
+          {/* Raw resource — planet info */}
+          {isRawResource && (
+            <div className="border-t border-gray-700 pt-3">
+              <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Harvested on</div>
+              {planetsLoading ? (
+                <div className="text-gray-500">Loading planets…</div>
+              ) : planets.length > 0 ? (
+                <div className="space-y-1 text-gray-300">
+                  {planets.map((planet) => (
+                    <div key={planet.typeId} className="flex items-center gap-2">
+                      <CommodityIcon typeId={planet.typeId} name={planet.name} />
+                      <span>{planet.name}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-500">No planet data available</div>
+              )}
+            </div>
+          )}
         </div>
       </Card>
     </div>

@@ -22,6 +22,11 @@ export type Schematic = {
   products: Record<string, SchematicMaterial>;
 };
 
+export type DogmaAttribute = {
+  attribute_id: number;
+  value: number;
+};
+
 export type CommodityType = {
   type_id: number;
   name: LocalizedString;
@@ -30,6 +35,8 @@ export type CommodityType = {
   published: boolean;
   description: LocalizedString;
   produced_by_schematic_ids?: number[];
+  harvested_by_pin_type_ids?: number[];
+  dogma_attributes?: Record<string, DogmaAttribute>;
 };
 
 export type CommodityGroup = {

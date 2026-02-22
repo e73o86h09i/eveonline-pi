@@ -1,1 +1,1 @@
-export { fetchType, fetchSchematic, fetchGroup, fetchAllCommodities } from './eveRef';
+export { fetchType, fetchSchematic, fetchGroup, fetchAllCommodities, fetchPlanetsForResource } from './eveRef';

@@ -65,3 +65,36 @@ export const fetchAllCommodities = async (): Promise<CommodityType[]> => {
 
   return types;
 };
+
+const PLANET_TYPE_ATTRIBUTE_ID = '1632';
+const planetCacheByResource = new Map<number, { typeId: number; name: string }[]>();
+
+export const fetchPlanetsForResource = async (resourceTypeId: number): Promise<{ typeId: number; name: string }[]> => {
+  const cached = planetCacheByResource.get(resourceTypeId);
+  if (cached) {
+    return cached;
+  }
+
+  const resourceType = await fetchType(resourceTypeId);
+  const pinTypeIds = resourceType.harvested_by_pin_type_ids ?? [];
+  if (pinTypeIds.length === 0) {
+    planetCacheByResource.set(resourceTypeId, []);
+
+    return [];
+  }
+
+  const pinTypes = await Promise.all(pinTypeIds.map(fetchType));
+  const planetTypeIds = new Set<number>();
+  for (const pinType of pinTypes) {
+    const attr = pinType.dogma_attributes?.[PLANET_TYPE_ATTRIBUTE_ID];
+    if (attr) {
+      planetTypeIds.add(attr.value);
+    }
+  }
+
+  const planetTypes = await Promise.all([...planetTypeIds].map(fetchType));
+  const planets = planetTypes.map((planet) => ({ typeId: planet.type_id, name: planet.name.en })).sort((a, b) => a.name.localeCompare(b.name));
+  planetCacheByResource.set(resourceTypeId, planets);
+
+  return planets;
+};
