@@ -1,10 +1,11 @@
 import type { FC } from 'react';
 import { Fragment, useMemo } from 'react';
-import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
-import type { ProductionNode } from '../../types';
-import { TIERS } from '../../types';
-import { useProductionTree } from './ProductionTreeContext';
-import { findCycleTime, formatDuration, formatQuantity, summarizeTree, tierColors } from './utils';
+import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow, Tooltip } from 'flowbite-react';
+import type { ProductionNode } from '../../../types';
+import { TIERS } from '../../../types';
+import { useProductionTree } from '../ProductionTreeContext';
+import { findCycleTime, formatDuration, formatQuantity, summarizeTree, tierColors } from '../utils';
+import { SummaryTooltipContent } from './SummaryTooltipContent';
 
 type ProductionSummaryProps = {
   tree: ProductionNode;
@@ -62,7 +63,15 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
                     {entry.tier}
                   </Badge>
                 </TableCell>
-                <TableCell className="font-medium text-white">{entry.name}</TableCell>
+                <TableCell className="font-medium text-white">
+                  <Tooltip
+                    content={<SummaryTooltipContent tree={tree} typeId={entry.typeId} name={entry.name} quantity={entry.quantity} exact={exactNumbers} />}
+                    style="dark"
+                    placement="right"
+                  >
+                    <span className="cursor-help border-b border-dashed border-gray-600">{entry.name}</span>
+                  </Tooltip>
+                </TableCell>
                 <TableCell className="text-right text-gray-300">{formatQuantity(entry.quantity, exactNumbers)}</TableCell>
                 <TableCell className="text-right text-gray-400">
                   {entry.tier !== 'r0' ? formatDuration(findCycleTime(tree, entry.typeId, entry.quantity)) : '—'}
@@ -76,4 +85,4 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
   );
 };
 
-export { ProductionSummary };
+export default ProductionSummary;

@@ -51,6 +51,15 @@ export type SummaryEntry = {
   quantity: number;
 };
 
+export type ConsumerEntry = {
+  parentTypeId: number;
+  parentName: string;
+  parentTier: Tier;
+  quantityPerRun: number;
+  totalRuns: number;
+  totalQuantity: number;
+};
+
 export const findNode = (node: ProductionNode, typeId: number): ProductionNode | null => {
   if (node.typeId === typeId) {
     return node;
@@ -72,6 +81,38 @@ export const findCycleTime = (root: ProductionNode, typeId: number, totalQuantit
   const outputPerRun = node.outputPerRun ?? 1;
   const runs = Math.ceil(totalQuantity / outputPerRun);
   return node.cycleTime * runs;
+};
+
+export const findConsumers = (root: ProductionNode, targetTypeId: number): ConsumerEntry[] => {
+  const map = new Map<number, ConsumerEntry>();
+
+  const walk = (node: ProductionNode) => {
+    for (const input of node.inputs) {
+      if (input.typeId === targetTypeId) {
+        const outputPerRun = node.outputPerRun ?? 1;
+        const runs = node.quantity / outputPerRun;
+        const perRun = input.quantity / runs;
+        const existing = map.get(node.typeId);
+        if (existing) {
+          existing.totalRuns += runs;
+          existing.totalQuantity += input.quantity;
+        } else {
+          map.set(node.typeId, {
+            parentTypeId: node.typeId,
+            parentName: node.name,
+            parentTier: node.tier,
+            quantityPerRun: perRun,
+            totalRuns: runs,
+            totalQuantity: input.quantity,
+          });
+        }
+      }
+      walk(input);
+    }
+  };
+
+  walk(root);
+  return sortByTier([...map.values()]);
 };
 
 export const summarizeTree = (root: ProductionNode): SummaryEntry[] => {
