@@ -4,21 +4,35 @@ import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow,
 import type { ProductionNode } from '../../../types';
 import { TIERS } from '../../../types';
 import { useProductionTree } from '../ProductionTreeContext';
-import { findCycleTime, formatDuration, formatQuantity, summarizeTree, tierColors } from '../utils';
+import { type SummaryEntry, findCycleTime, formatDuration, formatQuantity, sortByTier, summarizeTrees, tierColors } from '../utils';
 import { SummaryTooltipContent } from './SummaryTooltipContent';
 
 type ProductionSummaryProps = {
-  tree: ProductionNode;
+  trees: ProductionNode[];
 };
 
 const tierLabels: Record<string, string> = Object.fromEntries(TIERS.map((tier) => [tier.tier, tier.label]));
 
-const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
+const ProductionSummary: FC<ProductionSummaryProps> = ({ trees }) => {
   const { exactNumbers } = useProductionTree();
-  const entries = useMemo(() => summarizeTree(tree), [tree]);
+  const entries = useMemo(() => summarizeTrees(trees), [trees]);
 
-  if (entries.length === 0) {
-    return <p className="text-gray-400">No intermediate materials needed.</p>;
+  const targetProducts = useMemo(() => {
+    const map = new Map<number, SummaryEntry>();
+    for (const tree of trees) {
+      const existing = map.get(tree.typeId);
+      if (existing) {
+        existing.quantity += tree.quantity;
+      } else {
+        map.set(tree.typeId, { typeId: tree.typeId, name: tree.name, tier: tree.tier, quantity: tree.quantity });
+      }
+    }
+
+    return sortByTier([...map.values()]);
+  }, [trees]);
+
+  if (targetProducts.length === 0) {
+    return <p className="text-gray-400">No commodities selected.</p>;
   }
 
   return (
@@ -32,18 +46,27 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
         </TableRow>
       </TableHead>
       <TableBody className="divide-y divide-gray-700">
-        <TableRow className="border-gray-700 bg-gray-800">
-          <TableCell className="w-16">
-            <Badge color={tierColors[tree.tier] ?? tierColors.r0} className="uppercase">
-              {tree.tier}
-            </Badge>
-          </TableCell>
-          <TableCell className="font-semibold text-white">{tree.name}</TableCell>
-          <TableCell className="text-right text-gray-300">{formatQuantity(tree.quantity, exactNumbers)}</TableCell>
-          <TableCell className="text-right text-gray-400">
-            {tree.cycleTime != null ? formatDuration(findCycleTime(tree, tree.typeId, tree.quantity)) : '—'}
+        <TableRow className="bg-gray-800/50">
+          <TableCell colSpan={4} className="py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+            Target
           </TableCell>
         </TableRow>
+        {targetProducts.map((target) => {
+          const cycleTime = findCycleTime(trees, target.typeId, target.quantity);
+
+          return (
+            <TableRow key={target.typeId} className="border-gray-700 bg-gray-800">
+              <TableCell className="w-16">
+                <Badge color={tierColors[target.tier] ?? tierColors.r0} className="uppercase">
+                  {target.tier}
+                </Badge>
+              </TableCell>
+              <TableCell className="font-semibold text-white">{target.name}</TableCell>
+              <TableCell className="text-right text-gray-300">{formatQuantity(target.quantity, exactNumbers)}</TableCell>
+              <TableCell className="text-right text-gray-400">{cycleTime > 0 ? formatDuration(cycleTime) : '—'}</TableCell>
+            </TableRow>
+          );
+        })}
         {entries.map((entry, idx) => {
           const color = tierColors[entry.tier] ?? tierColors.r0;
           const showTierHeader = idx === 0 || entries[idx - 1].tier !== entry.tier;
@@ -65,7 +88,7 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
                 </TableCell>
                 <TableCell className="font-medium text-white">
                   <Tooltip
-                    content={<SummaryTooltipContent tree={tree} typeId={entry.typeId} name={entry.name} quantity={entry.quantity} exact={exactNumbers} />}
+                    content={<SummaryTooltipContent trees={trees} typeId={entry.typeId} name={entry.name} quantity={entry.quantity} exact={exactNumbers} />}
                     style="dark"
                     placement="right"
                   >
@@ -74,7 +97,7 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
                 </TableCell>
                 <TableCell className="text-right text-gray-300">{formatQuantity(entry.quantity, exactNumbers)}</TableCell>
                 <TableCell className="text-right text-gray-400">
-                  {entry.tier !== 'r0' ? formatDuration(findCycleTime(tree, entry.typeId, entry.quantity)) : '—'}
+                  {entry.tier !== 'r0' ? formatDuration(findCycleTime(trees, entry.typeId, entry.quantity)) : '—'}
                 </TableCell>
               </TableRow>
             </Fragment>

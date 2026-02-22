@@ -1,1 +1,1 @@
-export { useCommodities, useProductionChain } from './usePlanetary';
+export { useCommodities, useProductionChain, useMultiProductionChain, type ResolvedTree } from './usePlanetary';

@@ -1,19 +1,28 @@
 import type { FC } from 'react';
-import { Label, Select, Spinner, TextInput } from 'flowbite-react';
+import { Spinner } from 'flowbite-react';
 import { useMemo } from 'react';
-import type { CommodityType } from '../../types';
-import { TIERS } from '../../types';
+import type { CommoditySelection, CommodityType } from '../../types';
+import CommoditySelectorRow from './CommoditySelectorRow';
 
 type CommoditySelectorProps = {
   commodities: CommodityType[];
   loading: boolean;
-  selectedTypeId: number | null;
-  onSelect: (typeId: number | null) => void;
-  desiredQuantity: number;
-  onQuantityChange: (quantity: number) => void;
+  selections: CommoditySelection[];
+  onSelectCommodity: (selectionId: number, typeId: number | null) => void;
+  onQuantityChange: (selectionId: number, quantity: number) => void;
+  onAddSelection: () => void;
+  onRemoveSelection: (selectionId: number) => void;
 };
 
-const CommoditySelector: FC<CommoditySelectorProps> = ({ commodities, loading, selectedTypeId, onSelect, desiredQuantity, onQuantityChange }) => {
+const CommoditySelector: FC<CommoditySelectorProps> = ({
+  commodities,
+  loading,
+  selections,
+  onSelectCommodity,
+  onQuantityChange,
+  onAddSelection,
+  onRemoveSelection,
+}) => {
   const grouped = useMemo(() => {
     const map = new Map<number, CommodityType[]>();
     for (const commodity of commodities) {
@@ -30,16 +39,6 @@ const CommoditySelector: FC<CommoditySelectorProps> = ({ commodities, loading, s
     return map;
   }, [commodities]);
 
-  const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value;
-    onSelect(value ? Number(value) : null);
-  };
-
-  const handleQuantityChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const parsed = parseInt(event.target.value, 10);
-    onQuantityChange(Number.isNaN(parsed) || parsed < 1 ? 1 : parsed);
-  };
-
   if (loading) {
     return (
       <div className="flex items-center gap-2 text-gray-400">
@@ -50,39 +49,23 @@ const CommoditySelector: FC<CommoditySelectorProps> = ({ commodities, loading, s
   }
 
   return (
-    <div className="flex items-end gap-4">
-      <div className="max-w-md flex-1">
-        <Label htmlFor="commodity-select" className="mb-2 block text-white">
-          Commodity
-        </Label>
-        <Select id="commodity-select" value={selectedTypeId ?? ''} onChange={handleChange}>
-          <option value="">-- Choose a commodity --</option>
-          {[...TIERS]
-            .filter((tier) => tier.tier !== 'r0')
-            .reverse()
-            .map((tier) => {
-              const items = grouped.get(tier.groupIds[0]);
-              if (!items?.length) {
-                return null;
-              }
-
-              return (
-                <optgroup key={tier.groupIds[0]} label={tier.label}>
-                  {items.map((item) => (
-                    <option key={item.type_id} value={item.type_id}>
-                      {item.name.en}
-                    </option>
-                  ))}
-                </optgroup>
-              );
-            })}
-        </Select>
-      </div>
-      <div className="w-28">
-        <Label htmlFor="quantity-input" className="mb-2 block text-white">
-          Quantity
-        </Label>
-        <TextInput id="quantity-input" type="number" min={1} value={desiredQuantity} onChange={handleQuantityChange} />
+    <div className="flex flex-col gap-3">
+      {selections.map((selection, index) => (
+        <CommoditySelectorRow
+          key={selection.id}
+          grouped={grouped}
+          selection={selection}
+          showLabels={index === 0}
+          canRemove={selections.length > 1}
+          onSelectCommodity={(typeId) => onSelectCommodity(selection.id, typeId)}
+          onQuantityChange={(quantity) => onQuantityChange(selection.id, quantity)}
+          onRemove={() => onRemoveSelection(selection.id)}
+        />
+      ))}
+      <div>
+        <button onClick={onAddSelection} className="text-sm text-blue-400 hover:text-blue-300">
+          + Add commodity
+        </button>
       </div>
     </div>
   );

@@ -81,8 +81,19 @@ export const findNode = (node: ProductionNode, typeId: number): ProductionNode |
   return null;
 };
 
-export const findCycleTime = (root: ProductionNode, typeId: number, totalQuantity: number): number => {
-  const node = findNode(root, typeId);
+const findNodeInTrees = (roots: ProductionNode[], typeId: number): ProductionNode | null => {
+  for (const root of roots) {
+    const found = findNode(root, typeId);
+    if (found) {
+      return found;
+    }
+  }
+
+  return null;
+};
+
+export const findCycleTime = (roots: ProductionNode[], typeId: number, totalQuantity: number): number => {
+  const node = findNodeInTrees(roots, typeId);
   if (!node || !node.cycleTime) {
     return 0;
   }
@@ -93,7 +104,7 @@ export const findCycleTime = (root: ProductionNode, typeId: number, totalQuantit
   return node.cycleTime * runs;
 };
 
-export const findConsumers = (root: ProductionNode, targetTypeId: number): ConsumerEntry[] => {
+export const findConsumers = (roots: ProductionNode[], targetTypeId: number): ConsumerEntry[] => {
   const map = new Map<number, ConsumerEntry>();
 
   const walk = (node: ProductionNode) => {
@@ -122,12 +133,14 @@ export const findConsumers = (root: ProductionNode, targetTypeId: number): Consu
     }
   };
 
-  walk(root);
+  for (const root of roots) {
+    walk(root);
+  }
 
   return sortByTier([...map.values()]);
 };
 
-export const summarizeTree = (root: ProductionNode): SummaryEntry[] => {
+export const summarizeTrees = (roots: ProductionNode[]): SummaryEntry[] => {
   const map = new Map<number, SummaryEntry>();
 
   const walk = (node: ProductionNode) => {
@@ -143,9 +156,10 @@ export const summarizeTree = (root: ProductionNode): SummaryEntry[] => {
     }
   };
 
-  // Walk children only — exclude root since it's the final product, not something to produce
-  for (const input of root.inputs) {
-    walk(input);
+  for (const root of roots) {
+    for (const input of root.inputs) {
+      walk(input);
+    }
   }
 
   return sortByTier([...map.values()]);

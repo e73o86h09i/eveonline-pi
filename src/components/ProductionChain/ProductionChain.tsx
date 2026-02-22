@@ -1,20 +1,22 @@
 import type { FC } from 'react';
 import { Alert, Card, Spinner, TabItem, Tabs, ToggleSwitch } from 'flowbite-react';
-import { useProductionChain } from '../../hooks';
+import type { CommoditySelection } from '../../types';
+import { useMultiProductionChain } from '../../hooks';
 import { useProductionTree } from './ProductionTreeContext';
 import { ProductionTreeNode } from './ProductionTreeNode';
 import { ProductionSummary } from './ProductionSummary';
 
 type ProductionChainProps = {
-  typeId: number | null;
-  quantity: number;
+  selections: CommoditySelection[];
 };
 
-const ProductionChain: FC<ProductionChainProps> = ({ typeId, quantity }) => {
-  const { tree, loading, error } = useProductionChain(typeId, quantity);
+const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
+  const { trees, loading, errors } = useMultiProductionChain(selections);
   const { exactNumbers, setExactNumbers, activeTab, setActiveTab } = useProductionTree();
 
-  if (typeId === null) {
+  const hasSelections = selections.some((sel) => sel.typeId !== null);
+
+  if (!hasSelections) {
     return (
       <Card className="mt-6 border-gray-700 bg-gray-800">
         <p className="text-gray-400">Select a commodity above to view its production chain.</p>
@@ -33,17 +35,19 @@ const ProductionChain: FC<ProductionChainProps> = ({ typeId, quantity }) => {
     );
   }
 
-  if (error) {
+  if (errors.length > 0) {
     return (
       <Alert color="failure" className="mt-6">
-        <span>Error loading production chain: {error}</span>
+        <span>Error loading production chain: {errors.join(', ')}</span>
       </Alert>
     );
   }
 
-  if (!tree) {
+  if (trees.length === 0) {
     return null;
   }
+
+  const allTrees = trees.map((resolved) => resolved.tree);
 
   return (
     <Card className="mt-6 border-gray-700 bg-gray-800">
@@ -53,10 +57,15 @@ const ProductionChain: FC<ProductionChainProps> = ({ typeId, quantity }) => {
       </div>
       <Tabs variant="underline" onActiveTabChange={setActiveTab}>
         <TabItem active={activeTab === 0} title="Tree">
-          <ProductionTreeNode node={tree} />
+          {trees.map((resolved, idx) => (
+            <div key={resolved.selectionId}>
+              {idx > 0 && <hr className="my-4 border-gray-700" />}
+              <ProductionTreeNode node={resolved.tree} path={`sel-${resolved.selectionId}:${resolved.tree.typeId}`} />
+            </div>
+          ))}
         </TabItem>
         <TabItem active={activeTab === 1} title="Summary">
-          <ProductionSummary tree={tree} />
+          <ProductionSummary trees={allTrees} />
         </TabItem>
       </Tabs>
     </Card>

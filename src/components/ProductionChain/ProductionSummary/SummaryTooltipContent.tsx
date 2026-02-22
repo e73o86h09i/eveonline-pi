@@ -4,15 +4,15 @@ import type { ProductionNode } from '../../../types';
 import { findConsumers, formatQuantity } from '../utils';
 
 type SummaryTooltipContentProps = {
-  tree: ProductionNode;
+  trees: ProductionNode[];
   typeId: number;
   name: string;
   quantity: number;
   exact?: boolean;
 };
 
-const SummaryTooltipContent: FC<SummaryTooltipContentProps> = ({ tree, typeId, name, quantity, exact = false }) => {
-  const consumers = useMemo(() => findConsumers(tree, typeId), [tree, typeId]);
+const SummaryTooltipContent: FC<SummaryTooltipContentProps> = ({ trees, typeId, name, quantity, exact = false }) => {
+  const consumers = useMemo(() => findConsumers(trees, typeId), [trees, typeId]);
 
   if (consumers.length === 0) {
     return <span>{name} — raw resource, extracted from planets</span>;

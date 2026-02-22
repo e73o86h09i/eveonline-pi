@@ -1,14 +1,31 @@
 import type { FC } from 'react';
-import { useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Header } from './components/Header';
 import { CommoditySelector } from './components/CommoditySelector';
 import { ProductionChain, ProductionTreeProvider } from './components/ProductionChain';
 import { useCommodities } from './hooks';
+import type { CommoditySelection } from './types';
 
 const App: FC = () => {
   const { commodities, loading, error } = useCommodities();
-  const [selectedTypeId, setSelectedTypeId] = useState<number | null>(null);
-  const [desiredQuantity, setDesiredQuantity] = useState(1);
+  const nextIdRef = useRef(2);
+  const [selections, setSelections] = useState<CommoditySelection[]>([{ id: 1, typeId: null, quantity: 1 }]);
+
+  const handleSelectCommodity = useCallback((selectionId: number, typeId: number | null) => {
+    setSelections((prev) => prev.map((sel) => (sel.id === selectionId ? { ...sel, typeId } : sel)));
+  }, []);
+
+  const handleQuantityChange = useCallback((selectionId: number, quantity: number) => {
+    setSelections((prev) => prev.map((sel) => (sel.id === selectionId ? { ...sel, quantity } : sel)));
+  }, []);
+
+  const handleAddSelection = useCallback(() => {
+    setSelections((prev) => [...prev, { id: nextIdRef.current++, typeId: null, quantity: 1 }]);
+  }, []);
+
+  const handleRemoveSelection = useCallback((selectionId: number) => {
+    setSelections((prev) => prev.filter((sel) => sel.id !== selectionId));
+  }, []);
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -21,14 +38,15 @@ const App: FC = () => {
         <CommoditySelector
           commodities={commodities}
           loading={loading}
-          selectedTypeId={selectedTypeId}
-          onSelect={setSelectedTypeId}
-          desiredQuantity={desiredQuantity}
-          onQuantityChange={setDesiredQuantity}
+          selections={selections}
+          onSelectCommodity={handleSelectCommodity}
+          onQuantityChange={handleQuantityChange}
+          onAddSelection={handleAddSelection}
+          onRemoveSelection={handleRemoveSelection}
         />
 
-        <ProductionTreeProvider key={selectedTypeId}>
-          <ProductionChain typeId={selectedTypeId} quantity={desiredQuantity} />
+        <ProductionTreeProvider>
+          <ProductionChain selections={selections} />
         </ProductionTreeProvider>
       </main>
     </div>

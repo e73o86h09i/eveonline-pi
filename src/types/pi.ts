@@ -24,3 +24,9 @@ export type ProductionNode = {
   schematicId?: number;
   inputs: ProductionNode[];
 };
+
+export type CommoditySelection = {
+  id: number;
+  typeId: number | null;
+  quantity: number;
+};
