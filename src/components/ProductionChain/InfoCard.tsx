@@ -67,7 +67,8 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
 
   const handleMouseDown = useCallback(
     (event: React.MouseEvent<HTMLDivElement>) => {
-      if ((event.target as HTMLElement).closest('button')) {
+      const target = event.target as HTMLElement;
+      if (target.closest('button') || target.closest('[data-clickable]')) {
         return;
       }
 
@@ -173,6 +174,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
                     <span>
                       {formatQuantity(input.qty, exactNumbers)}×{' '}
                       <span
+                        data-clickable
                         className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
                         onClick={(event) => onOpenCard(event, input.typeId, input.name, input.tier)}
                       >
@@ -189,6 +191,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
                     <div key={input.name} className="pl-3">
                       {formatQuantity(input.qty * runs, exactNumbers)}×{' '}
                       <span
+                        data-clickable
                         className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
                         onClick={(event) => onOpenCard(event, input.typeId, input.name, input.tier)}
                       >
@@ -213,6 +216,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
                     </Badge>
                     <span>
                       <span
+                        data-clickable
                         className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
                         onClick={(event) => onOpenCard(event, consumer.typeId, consumer.name, consumer.tier)}
                       >
