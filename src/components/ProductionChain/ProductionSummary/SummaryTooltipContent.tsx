@@ -28,8 +28,8 @@ const SummaryTooltipContent: FC<SummaryTooltipContentProps> = ({ tree, typeId, n
       <div className="mb-1 text-xs text-gray-300">Used per run:</div>
       <div className="text-xs">
         {consumers.map((consumer) => (
-          <div key={consumer.parentTypeId} className="pl-3">
-            {formatQuantity(consumer.quantityPerRun, exact)}× → {consumer.parentName}
+          <div key={consumer.typeId} className="pl-3">
+            {formatQuantity(consumer.quantityPerRun, exact)}× → {consumer.name}
           </div>
         ))}
       </div>
@@ -38,8 +38,8 @@ const SummaryTooltipContent: FC<SummaryTooltipContentProps> = ({ tree, typeId, n
           <div className="text-xs text-gray-300">Total:</div>
           <div className="text-xs">
             {consumers.map((consumer) => (
-              <div key={consumer.parentTypeId} className="pl-3">
-                {formatQuantity(consumer.totalQuantity, exact)}× → {consumer.parentName} ({formatQuantity(consumer.totalRuns, exact)} runs)
+              <div key={consumer.typeId} className="pl-3">
+                {formatQuantity(consumer.totalQuantity, exact)}× → {consumer.name} ({formatQuantity(consumer.totalRuns, exact)} runs)
               </div>
             ))}
           </div>

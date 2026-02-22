@@ -52,9 +52,9 @@ export type SummaryEntry = {
 };
 
 export type ConsumerEntry = {
-  parentTypeId: number;
-  parentName: string;
-  parentTier: Tier;
+  typeId: number;
+  name: string;
+  tier: Tier;
   quantityPerRun: number;
   totalRuns: number;
   totalQuantity: number;
@@ -98,9 +98,9 @@ export const findConsumers = (root: ProductionNode, targetTypeId: number): Consu
           existing.totalQuantity += input.quantity;
         } else {
           map.set(node.typeId, {
-            parentTypeId: node.typeId,
-            parentName: node.name,
-            parentTier: node.tier,
+            typeId: node.typeId,
+            name: node.name,
+            tier: node.tier,
             quantityPerRun: perRun,
             totalRuns: runs,
             totalQuantity: input.quantity,
