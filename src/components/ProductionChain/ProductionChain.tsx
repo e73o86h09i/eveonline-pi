@@ -14,6 +14,7 @@ type OpenCard = {
   name: string;
   tier: Tier;
   position: { x: number; y: number };
+  flashKey: number;
 };
 
 type ProductionChainProps = {
@@ -53,11 +54,9 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
     setOpenCards((prev) => {
       const existingIndex = prev.findIndex((card) => card.id === cardId);
       if (existingIndex !== -1) {
-        if (existingIndex === prev.length - 1) {
-          return prev;
-        }
+        const existing = { ...prev[existingIndex], flashKey: prev[existingIndex].flashKey + 1 };
 
-        return [...prev.slice(0, existingIndex), ...prev.slice(existingIndex + 1), prev[existingIndex]];
+        return [...prev.slice(0, existingIndex), ...prev.slice(existingIndex + 1), existing];
       }
 
       return [
@@ -68,6 +67,7 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
           name,
           tier,
           position: { x: event.clientX + 10, y: event.clientY - 20 },
+          flashKey: 0,
         },
       ];
     });
@@ -84,13 +84,13 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
   const handleBringToFront = useCallback((cardId: string) => {
     setOpenCards((prev) => {
       const index = prev.findIndex((card) => card.id === cardId);
-      if (index === -1 || index === prev.length - 1) {
+      if (index === -1) {
         return prev;
       }
 
-      const card = prev[index];
+      const updated = { ...prev[index], flashKey: prev[index].flashKey + 1 };
 
-      return [...prev.slice(0, index), ...prev.slice(index + 1), card];
+      return [...prev.slice(0, index), ...prev.slice(index + 1), updated];
     });
   }, []);
 
@@ -158,6 +158,7 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
             typeId={card.typeId}
             name={card.name}
             tier={card.tier}
+            flashKey={card.flashKey}
             initialPosition={card.position}
             onClose={() => handleCloseCard(card.id)}
             onBringToFront={() => handleBringToFront(card.id)}

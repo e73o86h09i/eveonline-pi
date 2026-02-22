@@ -11,6 +11,7 @@ type InfoCardProps = {
   typeId: number;
   name: string;
   tier: Tier;
+  flashKey: number;
   initialPosition: { x: number; y: number };
   onClose: () => void;
   onBringToFront: () => void;
@@ -18,7 +19,7 @@ type InfoCardProps = {
   onPositionChange: (position: { x: number; y: number }) => void;
 };
 
-const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, initialPosition, onClose, onBringToFront, onOpenCard, onPositionChange }) => {
+const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosition, onClose, onBringToFront, onOpenCard, onPositionChange }) => {
   const { trees, exactNumbers } = useProductionTree();
   const [position, setPosition] = useState(initialPosition);
   const positionRef = useRef(initialPosition);
@@ -91,6 +92,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, initialPosition, onCl
       style={{ left: position.x, top: position.y }}
       onMouseDown={handleMouseDown}
     >
+      {<div key={flashKey} className="animate-info-card-flash pointer-events-none absolute inset-0 rounded-lg" />}
       <Card className="border-gray-600 bg-gray-800">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
