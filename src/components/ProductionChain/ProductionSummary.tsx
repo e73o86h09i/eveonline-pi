@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useMemo } from 'react';
+import { Fragment, useMemo } from 'react';
 import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import type { ProductionNode } from '../../types';
 import { TIERS } from '../../types';
@@ -23,10 +23,12 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
   return (
     <Table hoverable className="border-gray-700">
       <TableHead>
-        <TableHeadCell className="bg-gray-700 text-gray-300">Tier</TableHeadCell>
-        <TableHeadCell className="bg-gray-700 text-gray-300">Commodity</TableHeadCell>
-        <TableHeadCell className="bg-gray-700 text-gray-300 text-right">Quantity</TableHeadCell>
-        <TableHeadCell className="bg-gray-700 text-gray-300 text-right">Time</TableHeadCell>
+        <TableRow>
+          <TableHeadCell className="bg-gray-700 text-gray-300">Tier</TableHeadCell>
+          <TableHeadCell className="bg-gray-700 text-gray-300">Commodity</TableHeadCell>
+          <TableHeadCell className="bg-gray-700 text-gray-300 text-right">Quantity</TableHeadCell>
+          <TableHeadCell className="bg-gray-700 text-gray-300 text-right">Time</TableHeadCell>
+        </TableRow>
       </TableHead>
       <TableBody className="divide-y divide-gray-700">
         {entries.map((entry, idx) => {
@@ -34,15 +36,15 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
           const showTierHeader = idx === 0 || entries[idx - 1].tier !== entry.tier;
 
           return (
-            <>
+            <Fragment key={entry.typeId}>
               {showTierHeader && (
-                <TableRow key={`tier-${entry.tier}`} className="bg-gray-800/50">
+                <TableRow className="bg-gray-800/50">
                   <TableCell colSpan={4} className="py-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
                     {tierLabels[entry.tier] ?? entry.tier}
                   </TableCell>
                 </TableRow>
               )}
-              <TableRow key={entry.typeId} className="border-gray-700 bg-gray-800">
+              <TableRow className="border-gray-700 bg-gray-800">
                 <TableCell className="w-16">
                   <Badge color={color} className="uppercase">
                     {entry.tier}
@@ -54,7 +56,7 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ tree }) => {
                   {entry.tier !== 'r0' ? formatDuration(findCycleTime(tree, entry.typeId, entry.quantity)) : '—'}
                 </TableCell>
               </TableRow>
-            </>
+            </Fragment>
           );
         })}
       </TableBody>
