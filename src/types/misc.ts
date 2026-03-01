@@ -30,3 +30,16 @@ export type CommoditySelection = {
   typeId: number | null;
   quantity: number;
 };
+
+export type TradeStation = {
+  id: number;
+  name: string;
+};
+
+export const TRADE_STATIONS: TradeStation[] = [
+  { id: 60003760, name: 'Jita IV - Moon 4 - Caldari Navy Assembly Plant' },
+  { id: 60008494, name: 'Amarr VIII (Oris) - Emperor Family Academy' },
+  { id: 60011866, name: 'Dodixie IX - Moon 20 - Federation Navy Assembly Plant' },
+  { id: 60004588, name: 'Rens VI - Moon 8 - Brutor Tribe Treasury' },
+  { id: 60005686, name: 'Hek VIII - Moon 12 - Boundless Creation Factory' },
+];

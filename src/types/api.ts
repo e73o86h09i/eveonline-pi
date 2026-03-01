@@ -46,3 +46,19 @@ export type CommodityGroup = {
   published: boolean;
   type_ids: number[];
 };
+
+export type MarketOrderStats = {
+  weightedAverage: string;
+  max: string;
+  min: string;
+  stddev: string;
+  median: string;
+  volume: string;
+  orderCount: string;
+  percentile: string;
+};
+
+export type MarketPrice = {
+  buy: MarketOrderStats;
+  sell: MarketOrderStats;
+};

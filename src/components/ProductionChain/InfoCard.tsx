@@ -147,7 +147,11 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
             <CommodityIcon typeId={typeId} name={name} />
             <span className="font-bold text-white">{name}</span>
           </div>
-          <button onClick={onClose} className="flex items-center justify-center w-6 h-6 -mt-6 -mr-6 rounded text-gray-400 hover:bg-red-700 hover:text-white" aria-label="Close">
+          <button
+            onClick={onClose}
+            className="flex items-center justify-center w-6 h-6 -mt-6 -mr-6 rounded text-gray-400 hover:bg-red-700 hover:text-white"
+            aria-label="Close"
+          >
             ✕
           </button>
         </div>

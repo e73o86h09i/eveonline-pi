@@ -1,12 +1,14 @@
 import type { FC } from 'react';
 import { Spinner } from 'flowbite-react';
 import { useMemo } from 'react';
-import type { CommoditySelection, CommodityType } from '../../types';
+import type { CommoditySelection, CommodityType, MarketPrice } from '../../types';
 import CommoditySelectorRow from './CommoditySelectorRow';
 
 type CommoditySelectorProps = {
   commodities: CommodityType[];
   loading: boolean;
+  prices: Map<number, MarketPrice>;
+  pricesLoading: boolean;
   selections: CommoditySelection[];
   onSelectCommodity: (selectionId: number, typeId: number | null) => void;
   onQuantityChange: (selectionId: number, quantity: number) => void;
@@ -17,6 +19,8 @@ type CommoditySelectorProps = {
 const CommoditySelector: FC<CommoditySelectorProps> = ({
   commodities,
   loading,
+  prices,
+  pricesLoading,
   selections,
   onSelectCommodity,
   onQuantityChange,
@@ -54,6 +58,8 @@ const CommoditySelector: FC<CommoditySelectorProps> = ({
         <CommoditySelectorRow
           key={selection.id}
           grouped={grouped}
+          prices={prices}
+          pricesLoading={pricesLoading}
           selection={selection}
           showLabels={index === 0}
           canRemove={selections.length > 1}
