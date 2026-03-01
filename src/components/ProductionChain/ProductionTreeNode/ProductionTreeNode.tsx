@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import { Badge } from 'flowbite-react';
 import type { ProductionNode, Tier } from '../../../types';
 import { CommodityIcon } from '../../common/CommodityIcon';
+import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../../utils';
 import { useProductionTree } from '../ProductionTreeContext';
-import { formatDuration, formatQuantity, sortByTier, tierColors } from '../utils';
 
 type ProductionTreeNodeProps = {
   node: ProductionNode;
@@ -13,7 +13,7 @@ type ProductionTreeNodeProps = {
 };
 
 const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path = String(node.typeId), onOpenCard }) => {
-  const { expandedNodes, toggleNode, exactNumbers } = useProductionTree();
+  const { expandedNodes, toggleNode, exactNumbers, prices, pricesLoading, margins } = useProductionTree();
   const color = tierColors[node.tier] ?? tierColors.r0;
   const hasChildren = node.inputs.length > 0;
   const isRoot = depth === 0;
@@ -29,6 +29,9 @@ const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path
   const outputPerRun = node.outputPerRun ?? 1;
   const runs = node.cycleTime != null ? node.quantity / outputPerRun : 0;
   const totalTime = node.cycleTime != null ? node.cycleTime * runs : 0;
+
+  const { buyMax, sellMin } = parsePrices(prices.get(node.typeId));
+  const marginInfo = margins.get(node.typeId) ?? null;
 
   return (
     <div className={depth > 0 ? 'ml-6 border-l border-gray-600 pl-4' : ''}>
@@ -55,6 +58,19 @@ const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path
             {node.name}
           </button>
           <span className="text-sm text-gray-400">×{formatQuantity(node.quantity, exactNumbers)}</span>
+          {!pricesLoading && (
+            <span className="text-xs">
+              {buyMax ? <span className="text-green-400">{formatIsk(buyMax)}</span> : <span className="text-gray-500">n/a</span>}
+              <span className="text-gray-500"> / </span>
+              {sellMin ? <span className="text-yellow-400">{formatIsk(sellMin)}</span> : <span className="text-gray-500">n/a</span>}
+              {marginInfo ? (
+                <span className={marginInfo.margin >= 0 ? 'ml-1 text-green-400' : 'ml-1 text-red-400'}>
+                  ({marginInfo.margin >= 0 ? '+' : ''}
+                  {marginInfo.marginPercent.toFixed(1)}%)
+                </span>
+              ) : null}
+            </span>
+          )}
           {runs > 0 && (
             <span className="text-sm text-gray-500">
               ({formatQuantity(runs, exactNumbers)} {runs === 1 ? 'run' : 'runs'}, {formatDuration(totalTime)})

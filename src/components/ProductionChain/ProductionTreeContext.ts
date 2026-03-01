@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { ProductionNode } from '../../types';
+import type { MarginInfo, MarketPrice, ProductionNode } from '../../types';
 
 type ProductionTreeContextValue = {
   trees: ProductionNode[];
@@ -10,6 +10,9 @@ type ProductionTreeContextValue = {
   setExactNumbers: (value: boolean) => void;
   activeTab: number;
   setActiveTab: (tab: number) => void;
+  prices: Map<number, MarketPrice>;
+  pricesLoading: boolean;
+  margins: Map<number, MarginInfo>;
 };
 
 const ProductionTreeContext = createContext<ProductionTreeContextValue | null>(null);

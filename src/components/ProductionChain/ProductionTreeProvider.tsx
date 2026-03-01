@@ -1,6 +1,6 @@
 import type { FC, ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
-import type { ProductionNode } from '../../types';
+import type { MarginInfo, MarketPrice, ProductionNode } from '../../types';
 import { ProductionTreeContext } from './ProductionTreeContext';
 
 const collectDescendantPaths = (node: ProductionNode, parentPath: string): string[] => {
@@ -14,7 +14,12 @@ const collectDescendantPaths = (node: ProductionNode, parentPath: string): strin
   return paths;
 };
 
-const ProductionTreeProvider: FC<{ children: ReactNode }> = ({ children }) => {
+const ProductionTreeProvider: FC<{ prices: Map<number, MarketPrice>; pricesLoading: boolean; margins: Map<number, MarginInfo>; children: ReactNode }> = ({
+  prices,
+  pricesLoading,
+  margins,
+  children,
+}) => {
   const [trees, setTrees] = useState<ProductionNode[]>([]);
   const [exactNumbers, setExactNumbers] = useState(false);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set());
@@ -37,8 +42,8 @@ const ProductionTreeProvider: FC<{ children: ReactNode }> = ({ children }) => {
   }, []);
 
   const treeContextValue = useMemo(
-    () => ({ trees, setTrees, expandedNodes, toggleNode, exactNumbers, setExactNumbers, activeTab, setActiveTab }),
-    [trees, expandedNodes, toggleNode, exactNumbers, activeTab],
+    () => ({ trees, setTrees, expandedNodes, toggleNode, exactNumbers, setExactNumbers, activeTab, setActiveTab, prices, pricesLoading, margins }),
+    [trees, expandedNodes, toggleNode, exactNumbers, activeTab, prices, pricesLoading, margins],
   );
 
   return <ProductionTreeContext value={treeContextValue}>{children}</ProductionTreeContext>;

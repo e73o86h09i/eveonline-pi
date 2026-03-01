@@ -4,8 +4,9 @@ import { Badge, Card } from 'flowbite-react';
 import type { ProductionNode, Tier } from '../../types';
 import { usePlanets } from '../../hooks';
 import { CommodityIcon } from '../common/CommodityIcon';
+import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../utils';
 import { useProductionTree } from './ProductionTreeContext';
-import { findConsumers, findNode, formatDuration, formatQuantity, sortByTier, tierColors, totalQuantity } from './utils';
+import { findConsumers, findNode, totalQuantity } from './utils';
 
 type InfoCardProps = {
   typeId: number;
@@ -20,7 +21,7 @@ type InfoCardProps = {
 };
 
 const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosition, onClose, onBringToFront, onOpenCard, onPositionChange }) => {
-  const { trees, exactNumbers } = useProductionTree();
+  const { trees, exactNumbers, prices, pricesLoading, margins } = useProductionTree();
   const [position, setPosition] = useState(initialPosition);
   const positionRef = useRef(initialPosition);
   const dragStartRef = useRef({ x: 0, y: 0 });
@@ -130,6 +131,9 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
     qty: nodeRuns > 0 ? input.quantity / nodeRuns : 0,
   }));
 
+  const { buyMax, sellMin } = parsePrices(prices.get(typeId));
+  const marginInfo = margins.get(typeId) ?? null;
+
   return (
     <div
       ref={handleCardRef}
@@ -164,6 +168,41 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
               <span className="ml-2 text-gray-400">
                 ({formatQuantity(runs, exactNumbers)} {runs === 1 ? 'run' : 'runs'}, {formatDuration(totalTime)})
               </span>
+            )}
+          </div>
+
+          {/* Market prices */}
+          <div className="border-t border-gray-700 pt-3">
+            <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Market</div>
+            {pricesLoading ? (
+              <div className="text-gray-500">Loading prices…</div>
+            ) : (
+              <div className="space-y-1 text-gray-300">
+                <div>
+                  Buy: {buyMax ? <span className="font-semibold text-green-400">{formatIsk(buyMax)} ISK</span> : <span className="text-gray-500">n/a</span>}
+                </div>
+                <div>
+                  Sell: {sellMin ? <span className="font-semibold text-yellow-400">{formatIsk(sellMin)} ISK</span> : <span className="text-gray-500">n/a</span>}
+                </div>
+                {marginInfo && (
+                  <div className="mt-1 border-t border-gray-700 pt-1">
+                    <div>
+                      Margin/run:{' '}
+                      <span className={marginInfo.margin >= 0 ? 'font-semibold text-green-400' : 'font-semibold text-red-400'}>
+                        {marginInfo.margin >= 0 ? '+' : ''}
+                        {formatIsk(marginInfo.margin)} ISK ({marginInfo.marginPercent >= 0 ? '+' : ''}
+                        {marginInfo.marginPercent.toFixed(1)}%)
+                      </span>
+                    </div>
+                    <div className="mt-1 text-xs text-gray-400">
+                      <div>
+                        Output: {outputPerRun}× {formatIsk(buyMax ?? 0)} = {formatIsk(marginInfo.outputValue)} ISK
+                      </div>
+                      <div>Inputs: {formatIsk(marginInfo.inputCost)} ISK</div>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 

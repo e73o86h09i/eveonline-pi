@@ -1,15 +1,16 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
 import { Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Label, TextInput } from 'flowbite-react';
-import type { CommoditySelection, CommodityType, MarketPrice } from '../../types';
+import type { CommoditySelection, CommodityType, MarginInfo, MarketPrice } from '../../types';
 import { TIERS } from '../../types';
 import { CommodityIcon } from '../common/CommodityIcon';
-import { formatIsk } from '../utils';
+import { formatIsk, parsePrices } from '../utils';
 
 type CommoditySelectorRowProps = {
   grouped: Map<number, CommodityType[]>;
   prices: Map<number, MarketPrice>;
   pricesLoading: boolean;
+  margins: Map<number, MarginInfo>;
   selection: CommoditySelection;
   showLabels: boolean;
   canRemove: boolean;
@@ -22,6 +23,7 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({
   grouped,
   prices,
   pricesLoading,
+  margins,
   selection,
   showLabels,
   canRemove,
@@ -86,9 +88,8 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({
                   <span className="font-semibold text-gray-300">{tier.label}</span>
                 </DropdownHeader>
                 {items.map((item) => {
-                  const price = prices.get(item.type_id);
-                  const sellMin = price ? parseFloat(price.sell.min) : null;
-                  const buyMax = price ? parseFloat(price.buy.max) : null;
+                  const { buyMax, sellMin } = parsePrices(prices.get(item.type_id));
+                  const marginInfo = margins.get(item.type_id);
 
                   return (
                     <DropdownItem key={item.type_id} onClick={() => onSelectCommodity(item.type_id)}>
@@ -99,11 +100,17 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({
                         </div>
                         {pricesLoading ? (
                           <span className="text-xs text-gray-500">…</span>
-                        ) : price ? (
+                        ) : buyMax || sellMin ? (
                           <span className="shrink-0 text-xs">
                             {buyMax ? <span className="text-green-400">{formatIsk(buyMax)}</span> : <span className="text-gray-500">n/a</span>}
                             <span className="text-gray-500"> / </span>
                             {sellMin ? <span className="text-yellow-400">{formatIsk(sellMin)}</span> : <span className="text-gray-500">n/a</span>}
+                            {marginInfo ? (
+                              <span className={marginInfo.margin >= 0 ? 'ml-1 text-green-400' : 'ml-1 text-red-400'}>
+                                ({marginInfo.margin >= 0 ? '+' : ''}
+                                {marginInfo.marginPercent.toFixed(1)}%)
+                              </span>
+                            ) : null}
                           </span>
                         ) : (
                           <span className="text-xs text-gray-500">n/a</span>

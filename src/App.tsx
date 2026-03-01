@@ -1,17 +1,20 @@
 import type { FC } from 'react';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Header } from './components/Header';
 import { CommoditySelector } from './components/CommoditySelector';
 import { StationSelector } from './components/StationSelector';
 import { ProductionChain, ProductionTreeProvider } from './components/ProductionChain';
-import { useCommodities, usePrices } from './hooks';
-import type { CommoditySelection } from './types';
-import { TRADE_STATIONS } from './types';
+import { useCommodities, useMargins, usePrices } from './hooks';
+import { type CommoditySelection, TIERS, TRADE_STATIONS } from './types';
+
+const R0_GROUP_IDS = new Set(TIERS.find((tier) => tier.tier === 'r0')?.groupIds ?? []);
 
 const App: FC = () => {
   const { commodities, loading, error } = useCommodities();
   const [stationId, setStationId] = useState(TRADE_STATIONS[0].id);
+  const selectableCommodities = useMemo(() => commodities.filter((commodity) => !R0_GROUP_IDS.has(commodity.group_id)), [commodities]);
   const { prices, loading: pricesLoading } = usePrices(commodities, stationId);
+  const margins = useMargins(selectableCommodities, prices);
   const nextIdRef = useRef(2);
   const [selections, setSelections] = useState<CommoditySelection[]>([{ id: 1, typeId: null, quantity: 1 }]);
 
@@ -43,10 +46,11 @@ const App: FC = () => {
         {error && <p className="mb-4 text-red-400">Failed to load commodities: {error}</p>}
 
         <CommoditySelector
-          commodities={commodities}
+          commodities={selectableCommodities}
           loading={loading}
           prices={prices}
           pricesLoading={pricesLoading}
+          margins={margins}
           selections={selections}
           onSelectCommodity={handleSelectCommodity}
           onQuantityChange={handleQuantityChange}
@@ -54,7 +58,7 @@ const App: FC = () => {
           onRemoveSelection={handleRemoveSelection}
         />
 
-        <ProductionTreeProvider>
+        <ProductionTreeProvider prices={prices} pricesLoading={pricesLoading} margins={margins}>
           <ProductionChain selections={selections} />
         </ProductionTreeProvider>
       </main>

@@ -43,3 +43,10 @@ export const TRADE_STATIONS: TradeStation[] = [
   { id: 60004588, name: 'Rens VI - Moon 8 - Brutor Tribe Treasury' },
   { id: 60005686, name: 'Hek VIII - Moon 12 - Boundless Creation Factory' },
 ];
+
+export type MarginInfo = {
+  outputValue: number;
+  inputCost: number;
+  margin: number;
+  marginPercent: number;
+};

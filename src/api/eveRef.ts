@@ -58,7 +58,7 @@ export const fetchGroup = async (groupId: number): Promise<CommodityGroup> => {
 };
 
 export const fetchAllCommodities = async (): Promise<CommodityType[]> => {
-  const groupIds = [1042, 1034, 1040, 1041]; // P1, P2, P3, P4
+  const groupIds = [1032, 1033, 1035, 1042, 1034, 1040, 1041]; // R0, P1, P2, P3, P4
   const groups = await Promise.all(groupIds.map(fetchGroup));
   const allTypeIds = groups.flatMap((group) => group.type_ids);
   const types = await Promise.all(allTypeIds.map(fetchType));
