@@ -4,8 +4,8 @@ import { Badge, Card } from 'flowbite-react';
 import type { ProductionNode, Tier } from '../../types';
 import { usePlanets } from '../../hooks';
 import { CommodityIcon } from '../common/CommodityIcon';
-import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../utils';
-import { useProductionTree } from './ProductionTreeContext';
+import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../../utils';
+import { usePICalculator } from '../PICalculator/PICalculatorContext';
 import { findConsumers, findNode, totalQuantity } from './utils';
 
 type InfoCardProps = {
@@ -21,7 +21,7 @@ type InfoCardProps = {
 };
 
 const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosition, onClose, onBringToFront, onOpenCard, onPositionChange }) => {
-  const { trees, exactNumbers, prices, pricesLoading, margins } = useProductionTree();
+  const { trees, exactNumbers, prices, pricesLoading, margins } = usePICalculator();
   const [position, setPosition] = useState(initialPosition);
   const positionRef = useRef(initialPosition);
   const dragStartRef = useRef({ x: 0, y: 0 });

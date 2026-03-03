@@ -4,8 +4,8 @@ import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow 
 import type { Tier } from '../../../types';
 import { TIERS } from '../../../types';
 import { CommodityIcon } from '../../common/CommodityIcon';
-import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../../utils';
-import { useProductionTree } from '../ProductionTreeContext';
+import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../../../utils';
+import { usePICalculator } from '../../PICalculator/PICalculatorContext';
 import { type SummaryEntry, findCycleTime, summarizeTrees } from '../utils';
 
 type ProductionSummaryProps = {
@@ -15,7 +15,7 @@ type ProductionSummaryProps = {
 const tierLabels: Record<string, string> = Object.fromEntries(TIERS.map((tier) => [tier.tier, tier.label]));
 
 const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
-  const { trees, exactNumbers, prices, pricesLoading, margins } = useProductionTree();
+  const { trees, exactNumbers, prices, pricesLoading, margins } = usePICalculator();
   const entries = useMemo(() => summarizeTrees(trees), [trees]);
 
   const targetProducts = useMemo(() => {

@@ -1,16 +1,14 @@
 import type { FC } from 'react';
 import { useMemo } from 'react';
 import { Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Label, TextInput } from 'flowbite-react';
-import type { CommoditySelection, CommodityType, MarginInfo, MarketPrice } from '../../types';
+import type { CommoditySelection, CommodityType } from '../../types';
 import { TIERS } from '../../types';
 import { CommodityIcon } from '../common/CommodityIcon';
-import { formatIsk, parsePrices } from '../utils';
+import { usePICalculator } from '../PICalculator/PICalculatorContext';
+import { formatIsk, parsePrices } from '../../utils';
 
 type CommoditySelectorRowProps = {
   grouped: Map<number, CommodityType[]>;
-  prices: Map<number, MarketPrice>;
-  pricesLoading: boolean;
-  margins: Map<number, MarginInfo>;
   selection: CommoditySelection;
   showLabels: boolean;
   canRemove: boolean;
@@ -19,18 +17,8 @@ type CommoditySelectorRowProps = {
   onRemove: () => void;
 };
 
-const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({
-  grouped,
-  prices,
-  pricesLoading,
-  margins,
-  selection,
-  showLabels,
-  canRemove,
-  onSelectCommodity,
-  onQuantityChange,
-  onRemove,
-}) => {
+const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selection, showLabels, canRemove, onSelectCommodity, onQuantityChange, onRemove }) => {
+  const { prices, pricesLoading, margins } = usePICalculator();
   const quantityId = `quantity-input-${selection.id}`;
 
   const selectedName = useMemo(() => {
@@ -141,4 +129,4 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({
   );
 };
 
-export default CommoditySelectorRow;
+export { CommoditySelectorRow };

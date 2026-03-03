@@ -4,7 +4,7 @@ import { Alert, Card, Spinner, TabItem, Tabs, ToggleSwitch } from 'flowbite-reac
 import type { CommoditySelection, ProductionNode, Tier } from '../../types';
 import { useMultiProductionChain } from '../../hooks';
 import { InfoCard } from './InfoCard';
-import { useProductionTree } from './ProductionTreeContext';
+import { usePICalculator } from '../PICalculator/PICalculatorContext';
 import { ProductionTreeNode } from './ProductionTreeNode';
 import { ProductionSummary } from './ProductionSummary';
 
@@ -23,7 +23,7 @@ type ProductionChainProps = {
 
 const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
   const { trees: resolvedTrees, loading, errors } = useMultiProductionChain(selections);
-  const { setTrees, exactNumbers, setExactNumbers, activeTab, setActiveTab } = useProductionTree();
+  const { setTrees, exactNumbers, setExactNumbers, activeTab, setActiveTab } = usePICalculator();
   const [openCards, setOpenCards] = useState<OpenCard[]>([]);
 
   const allTrees = useMemo(() => resolvedTrees.map((resolved) => resolved.tree), [resolvedTrees]);

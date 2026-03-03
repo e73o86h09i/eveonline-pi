@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react';
 import type { MarginInfo, MarketPrice, ProductionNode } from '../../types';
 
-type ProductionTreeContextValue = {
+type PICalculatorContextValue = {
   trees: ProductionNode[];
   setTrees: (trees: ProductionNode[]) => void;
   expandedNodes: Set<string>;
@@ -15,14 +15,14 @@ type ProductionTreeContextValue = {
   margins: Map<number, MarginInfo>;
 };
 
-const ProductionTreeContext = createContext<ProductionTreeContextValue | null>(null);
+const PICalculatorContext = createContext<PICalculatorContextValue | null>(null);
 
-export { ProductionTreeContext };
+export { PICalculatorContext };
 
-export const useProductionTree = (): ProductionTreeContextValue => {
-  const ctx = useContext(ProductionTreeContext);
+export const usePICalculator = (): PICalculatorContextValue => {
+  const ctx = useContext(PICalculatorContext);
   if (!ctx) {
-    throw new Error('useProductionTree must be used within a ProductionTreeContext provider');
+    throw new Error('usePICalculator must be used within a PICalculatorContext provider');
   }
 
   return ctx;

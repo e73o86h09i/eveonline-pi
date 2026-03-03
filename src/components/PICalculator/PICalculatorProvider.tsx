@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 import type { MarginInfo, MarketPrice, ProductionNode } from '../../types';
-import { ProductionTreeContext } from './ProductionTreeContext';
+import { PICalculatorContext } from './PICalculatorContext';
 
 const collectDescendantPaths = (node: ProductionNode, parentPath: string): string[] => {
   const paths: string[] = [];
@@ -14,7 +14,7 @@ const collectDescendantPaths = (node: ProductionNode, parentPath: string): strin
   return paths;
 };
 
-const ProductionTreeProvider: FC<{ prices: Map<number, MarketPrice>; pricesLoading: boolean; margins: Map<number, MarginInfo>; children: ReactNode }> = ({
+const PICalculatorProvider: FC<{ prices: Map<number, MarketPrice>; pricesLoading: boolean; margins: Map<number, MarginInfo>; children: ReactNode }> = ({
   prices,
   pricesLoading,
   margins,
@@ -46,7 +46,7 @@ const ProductionTreeProvider: FC<{ prices: Map<number, MarketPrice>; pricesLoadi
     [trees, expandedNodes, toggleNode, exactNumbers, activeTab, prices, pricesLoading, margins],
   );
 
-  return <ProductionTreeContext value={treeContextValue}>{children}</ProductionTreeContext>;
+  return <PICalculatorContext value={treeContextValue}>{children}</PICalculatorContext>;
 };
 
-export default ProductionTreeProvider;
+export { PICalculatorProvider };

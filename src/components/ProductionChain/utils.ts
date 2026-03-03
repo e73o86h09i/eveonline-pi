@@ -1,5 +1,5 @@
 import type { MarginInfo, ProductionNode, Tier } from '../../types';
-import { sortByTier } from '../utils';
+import { sortByTier } from '../../utils';
 
 export type { MarginInfo };
 

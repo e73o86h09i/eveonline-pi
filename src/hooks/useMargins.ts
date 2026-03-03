@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { CommodityType, MarginInfo, MarketPrice } from '../types';
 import { fetchSchematic } from '../api';
-import { parsePrices } from '../components/utils';
+import { parsePrices } from '../utils';
 
 const computeMargins = async (commodities: CommodityType[], prices: Map<number, MarketPrice>): Promise<Map<number, MarginInfo>> => {
   const result = new Map<number, MarginInfo>();

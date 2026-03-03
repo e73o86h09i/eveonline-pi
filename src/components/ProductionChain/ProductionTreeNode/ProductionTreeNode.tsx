@@ -2,8 +2,8 @@ import type { FC } from 'react';
 import { Badge } from 'flowbite-react';
 import type { ProductionNode, Tier } from '../../../types';
 import { CommodityIcon } from '../../common/CommodityIcon';
-import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../../utils';
-import { useProductionTree } from '../ProductionTreeContext';
+import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../../../utils';
+import { usePICalculator } from '../../PICalculator/PICalculatorContext';
 
 type ProductionTreeNodeProps = {
   node: ProductionNode;
@@ -13,7 +13,7 @@ type ProductionTreeNodeProps = {
 };
 
 const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path = String(node.typeId), onOpenCard }) => {
-  const { expandedNodes, toggleNode, exactNumbers, prices, pricesLoading, margins } = useProductionTree();
+  const { expandedNodes, toggleNode, exactNumbers, prices, pricesLoading, margins } = usePICalculator();
   const color = tierColors[node.tier] ?? tierColors.r0;
   const hasChildren = node.inputs.length > 0;
   const isRoot = depth === 0;

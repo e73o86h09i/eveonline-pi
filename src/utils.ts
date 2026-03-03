@@ -1,4 +1,4 @@
-import type { MarketPrice } from '../types';
+import type { MarketPrice } from './types';
 
 const tierOrder: Record<string, number> = { p4: 0, p3: 1, p2: 2, p1: 3, r0: 4 };
 
