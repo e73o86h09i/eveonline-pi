@@ -1,25 +1,45 @@
 # This is the React + TypeScript + Vite application that uses flowbite-react and tailwindcss for styling.
 
 ## About
-This project is an EVE Online Planetary Interaction (PI) Calculator. It provides a web UI for selecting any P1–P4 planetary commodity and viewing its full recursive production chain — from the finished product down to raw planetary resources.
+This project is an EVE Online Planetary Interaction (PI) Calculator. It provides a web UI for selecting one or more P1–P4 planetary commodities and viewing their full recursive production chains — from the finished product down to raw planetary resources — alongside live market prices and profit margins.
 
 Key features:
-- **Commodity selector** grouped by tier (P1 Basic, P2 Refined, P3 Specialized, P4 Advanced)
-- **Collapsible production chain tree** showing every intermediate and raw input with accurate quantities
+- **Multi-commodity selector** grouped by tier (P1 Basic, P2 Refined, P3 Specialized, P4 Advanced), with inline buy/sell prices and margin %
+- **Trade station selector** to switch between major trade hubs (Jita, Amarr, Dodixie, Rens, Hek)
+- **Collapsible production chain tree** showing every intermediate and raw input with accurate quantities, market prices, and per-run profit margins
+- **Production summary table** — a flat tabular view of all materials grouped by tier, with columns for quantity, buy/sell prices, margin/run, and production time
+- **Draggable InfoCards** opened by clicking any commodity name, showing detailed info: total quantity & runs, market buy/sell prices, margin per run (ISK + % with cost breakdown), recipe per run, total inputs, "Used by" consumers, and planet types for raw resources (R0)
+- **Market prices** fetched from the Fuzzwork Market API, displayed on tree nodes, summary rows, InfoCards, and commodity dropdown items
+- **Profit margins** calculated from schematic data: `outputPerRun × buyMax − Σ(inputQtyPerRun × sellMin)`, shown as absolute ISK and percentage
 - **Schematic-aware calculations** that account for output-per-run batching (e.g. P1 produces 20 per run, P2 produces 5)
 - **Tier-colored badges** (R0 gray, P1 red, P2 yellow, P3 green, P4 blue) and **sorted inputs** (highest tier first)
-- **Hover tooltips** with per-run schematic formula, cycle time per run, and total quantities/duration
+- **Commodity icons** from the EVE Image Server on all nodes, rows, and cards
 - **Cycle time display** on each tree node showing the total production time for the required runs
 - **Exact numbers toggle** to switch between compact (120k) and full (120,000) formatting
 - **Foldable tree** where collapsing a node resets all nested levels
+- **Planet harvesting info** for raw resources (R0) showing which planet types they can be extracted from
 
 ## APIs
-The application uses the [EVE Ref public API](https://docs.everef.net/datasets/reference-data.html) to get commodity and schematic data.
+The application uses three external APIs:
 
-### Endpoints
-- **Type details**: [`/types/{typeID}`](https://ref-data.everef.net/types/2869) — returns commodity info including `name`, `group_id`, and `produced_by_schematic_ids` (array of schematic IDs that produce this type)
+### EVE Ref API
+The [EVE Ref public API](https://docs.everef.net/datasets/reference-data.html) provides commodity and schematic data. All responses are client-side cached.
+
+- **Type details**: [`/types/{typeID}`](https://ref-data.everef.net/types/2869) — returns commodity info including `name`, `group_id`, `produced_by_schematic_ids`, `harvested_by_pin_type_ids`, and `dogma_attributes`
 - **Schematic details**: [`/schematics/{schematicID}`](https://ref-data.everef.net/schematics/114) — returns `materials` (inputs) and `products` (outputs) with quantities per run, plus `cycle_time`
 - **Group members**: [`/groups/{groupID}`](https://ref-data.everef.net/groups/1042) — returns all type IDs belonging to a group
+
+### Fuzzwork Market API
+The [Fuzzwork Market API](https://market.fuzzwork.co.uk/) provides live market price aggregates.
+
+- **Price aggregates**: `/aggregates/?station={stationId}&types={typeId1},{typeId2},...` — returns per-type buy/sell order stats (`weightedAverage`, `max`, `min`, `stddev`, `median`, `volume`, `orderCount`, `percentile`)
+
+Prices are fetched for all commodities (R0–P4) at the selected trade station. The app uses `buy.max` (highest buy order) and `sell.min` (lowest sell order) for display and margin calculations.
+
+### EVE Image Server
+The [EVE Image Server](https://images.evetech.net/) provides commodity icons.
+
+- **Type icon**: `/types/{typeId}/icon?size=32` — 32×32 PNG icon
 
 ### Group IDs
 Planetary Commodities belong to [Category 43](https://ref-data.everef.net/categories/43) with these groups:
