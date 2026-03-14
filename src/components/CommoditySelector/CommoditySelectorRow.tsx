@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Label, TextInput } from 'flowbite-react';
 import type { CommoditySelection, CommodityType } from '../../types';
 import { TIERS } from '../../types';
@@ -20,6 +20,15 @@ type CommoditySelectorRowProps = {
 const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selection, showLabels, canRemove, onSelectCommodity, onQuantityChange, onRemove }) => {
   const { prices, pricesLoading, margins, exactPrices } = usePICalculator();
   const quantityId = `quantity-input-${selection.id}`;
+  const [search, setSearch] = useState('');
+
+  const handleSearchChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearch(event.target.value);
+  }, []);
+
+  const handleSearchKeyDown = useCallback((event: React.KeyboardEvent<HTMLInputElement>) => {
+    event.stopPropagation();
+  }, []);
 
   const selectedName = useMemo(() => {
     if (selection.typeId === null) {
@@ -43,6 +52,24 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selectio
 
   const tiers = useMemo(() => [...TIERS].filter((tier) => tier.tier !== 'r0').reverse(), []);
 
+  const searchLower = search.toLowerCase();
+
+  const filteredGrouped = useMemo(() => {
+    if (!searchLower) {
+      return grouped;
+    }
+
+    const filtered = new Map<number, CommodityType[]>();
+    for (const [groupId, items] of grouped) {
+      const matching = items.filter((item) => item.name.en.toLowerCase().includes(searchLower));
+      if (matching.length > 0) {
+        filtered.set(groupId, matching);
+      }
+    }
+
+    return filtered;
+  }, [grouped, searchLower]);
+
   const renderTrigger = () => (
     <button
       type="button"
@@ -60,11 +87,39 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selectio
       <div className="max-w-md flex-1">
         {showLabels && <Label className="mb-2 block text-white">Commodity</Label>}
         <Dropdown label="" renderTrigger={renderTrigger} className="max-h-80 overflow-y-auto">
-          <DropdownItem onClick={() => onSelectCommodity(null)}>
+          <div className="sticky top-0 z-10 bg-gray-700 p-2">
+            <div className="relative">
+              <TextInput
+                type="text"
+                placeholder="Search..."
+                value={search}
+                onChange={handleSearchChange}
+                onKeyDown={handleSearchKeyDown}
+                sizing="sm"
+                autoFocus
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                  aria-label="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+          <DropdownItem
+            onClick={() => {
+              onSelectCommodity(null);
+              setSearch('');
+            }}
+          >
             <span className="text-gray-400">-- Choose a commodity --</span>
           </DropdownItem>
           {tiers.map((tier, tierIndex) => {
-            const items = grouped.get(tier.groupIds[0]);
+            const items = filteredGrouped.get(tier.groupIds[0]);
             if (!items?.length) {
               return null;
             }
@@ -80,7 +135,13 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selectio
                   const marginInfo = margins.get(item.type_id);
 
                   return (
-                    <DropdownItem key={item.type_id} onClick={() => onSelectCommodity(item.type_id)}>
+                    <DropdownItem
+                      key={item.type_id}
+                      onClick={() => {
+                        onSelectCommodity(item.type_id);
+                        setSearch('');
+                      }}
+                    >
                       <div className="flex w-full items-center gap-2 text-left">
                         <CommodityIcon typeId={item.type_id} name={item.name.en} />
                         <div className="flex flex-col">
