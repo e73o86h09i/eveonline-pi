@@ -17,6 +17,7 @@ export type ConsumerEntry = {
   quantityPerRun: number;
   totalRuns: number;
   totalQuantity: number;
+  rootName: string | null;
 };
 
 export const findNode = (node: ProductionNode, typeId: number): ProductionNode | null => {
@@ -58,39 +59,45 @@ export const findCycleTime = (roots: ProductionNode[], typeId: number, totalQuan
 };
 
 export const findConsumers = (roots: ProductionNode[], targetTypeId: number): ConsumerEntry[] => {
-  const map = new Map<number, ConsumerEntry>();
-
-  const walk = (node: ProductionNode) => {
-    for (const input of node.inputs) {
-      if (input.typeId === targetTypeId) {
-        const outputPerRun = node.outputPerRun ?? 1;
-        const runs = node.quantity / outputPerRun;
-        const perRun = input.quantity / runs;
-        const existing = map.get(node.typeId);
-        if (existing) {
-          existing.totalRuns += runs;
-          existing.totalQuantity += input.quantity;
-        } else {
-          map.set(node.typeId, {
-            typeId: node.typeId,
-            name: node.name,
-            tier: node.tier,
-            quantityPerRun: perRun,
-            totalRuns: runs,
-            totalQuantity: input.quantity,
-          });
-        }
-      }
-
-      walk(input);
-    }
-  };
+  const entries: ConsumerEntry[] = [];
 
   for (const root of roots) {
+    const treeMap = new Map<number, ConsumerEntry>();
+
+    const walk = (node: ProductionNode) => {
+      for (const input of node.inputs) {
+        if (input.typeId === targetTypeId) {
+          const outputPerRun = node.outputPerRun ?? 1;
+          const runs = node.quantity / outputPerRun;
+          const perRun = input.quantity / runs;
+          const rootName = node.typeId !== root.typeId ? root.name : null;
+          const existing = treeMap.get(node.typeId);
+
+          if (existing) {
+            existing.totalRuns += runs;
+            existing.totalQuantity += input.quantity;
+          } else {
+            treeMap.set(node.typeId, {
+              typeId: node.typeId,
+              name: node.name,
+              tier: node.tier,
+              quantityPerRun: perRun,
+              totalRuns: runs,
+              totalQuantity: input.quantity,
+              rootName,
+            });
+          }
+        }
+
+        walk(input);
+      }
+    };
+
     walk(root);
+    entries.push(...treeMap.values());
   }
 
-  return sortByTier([...map.values()]);
+  return sortByTier(entries);
 };
 
 export const totalQuantity = (roots: ProductionNode[], targetTypeId: number): number => {

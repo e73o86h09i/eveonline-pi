@@ -1,6 +1,6 @@
 import type { FC } from 'react';
 import { useCallback, useRef, useState } from 'react';
-import { Badge, Card } from 'flowbite-react';
+import { Badge, Card, Tooltip } from 'flowbite-react';
 import type { ProductionNode, Tier } from '../../types';
 import { usePlanets } from '../../hooks';
 import { CommodityIcon } from '../common/CommodityIcon';
@@ -267,28 +267,42 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
             <div className="border-t border-gray-700 pt-3">
               <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-gray-400">Used by</div>
               <div className="space-y-1.5 text-gray-300">
-                {consumers.map((consumer) => (
-                  <div key={consumer.typeId} className="flex items-center gap-1">
-                    <Badge color={tierColors[consumer.tier] ?? tierColors.r0} size="xs" className="uppercase">
-                      {consumer.tier}
-                    </Badge>
-                    <span>
-                      <span
-                        data-clickable
-                        className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
-                        onClick={(event) => onOpenCard(event, consumer.typeId, consumer.name, consumer.tier)}
-                      >
-                        {consumer.name}
-                      </span>
-                      : {formatQuantity(consumer.quantityPerRun, exactNumbers)}× / run
-                      {consumer.totalRuns > 1 && (
-                        <span className="ml-1 text-gray-400">
-                          ({formatQuantity(consumer.totalQuantity, exactNumbers)}× total, {formatQuantity(consumer.totalRuns, exactNumbers)} runs)
+                {consumers.map((consumer, index) => {
+                  const row = (
+                    <div
+                      key={`${consumer.typeId}-${index}`}
+                      className="flex items-center gap-1"
+                    >
+                      <Badge color={tierColors[consumer.tier] ?? tierColors.r0} size="xs" className="uppercase">
+                        {consumer.tier}
+                      </Badge>
+                      <span>
+                        <span
+                          data-clickable
+                          className="cursor-pointer border-b border-dashed border-gray-600 hover:text-blue-400"
+                          onClick={(event) => onOpenCard(event, consumer.typeId, consumer.name, consumer.tier)}
+                        >
+                          {consumer.name}
                         </span>
-                      )}
-                    </span>
-                  </div>
-                ))}
+                        : {formatQuantity(consumer.quantityPerRun, exactNumbers)}× / run
+                        <span className="ml-1 text-gray-400">
+                          ({formatQuantity(consumer.totalQuantity, exactNumbers)}× total, {formatQuantity(consumer.totalRuns, exactNumbers)}{' '}
+                          {consumer.totalRuns === 1 ? 'run' : 'runs'})
+                        </span>
+                      </span>
+                    </div>
+                  );
+
+                  if (consumer.rootName) {
+                    return (
+                      <Tooltip key={`${consumer.typeId}-${index}`} content={`for ${consumer.rootName}`} placement="top" style="dark">
+                        {row}
+                      </Tooltip>
+                    );
+                  }
+
+                  return row;
+                })}
               </div>
             </div>
           )}
