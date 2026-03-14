@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CommodityType, MarketPrice } from '../types';
 import { fetchMarketPrices } from '../api';
+import { useGlobalLoading } from './useGlobalLoading';
 
 type PriceState = {
   prices: Map<number, MarketPrice>;
@@ -10,6 +11,7 @@ type PriceState = {
 export const usePrices = (commodities: CommodityType[], stationId: number) => {
   const [state, setState] = useState<PriceState>({ prices: new Map(), stationId });
   const requestRef = useRef(0);
+  const { startLoading, stopLoading } = useGlobalLoading();
 
   const typeIds = useMemo(() => commodities.map((commodity) => commodity.type_id), [commodities]);
 
@@ -19,6 +21,7 @@ export const usePrices = (commodities: CommodityType[], stationId: number) => {
     }
 
     const requestId = ++requestRef.current;
+    startLoading();
 
     fetchMarketPrices(typeIds, stationId)
       .then((result) => {
@@ -30,8 +33,9 @@ export const usePrices = (commodities: CommodityType[], stationId: number) => {
         if (requestRef.current === requestId) {
           setState({ prices: new Map(), stationId });
         }
-      });
-  }, [typeIds, stationId]);
+      })
+      .finally(stopLoading);
+  }, [typeIds, stationId, startLoading, stopLoading]);
 
   const loading = typeIds.length > 0 && state.stationId !== stationId;
 

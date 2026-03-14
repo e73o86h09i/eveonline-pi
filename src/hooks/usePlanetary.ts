@@ -1,33 +1,34 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { CommodityType } from '../types';
 import { fetchAllCommodities, fetchPlanetsForResource } from '../api';
+import { useGlobalLoading } from './useGlobalLoading';
 
 export const useCommodities = () => {
   const [commodities, setCommodities] = useState<CommodityType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { startLoading, stopLoading } = useGlobalLoading();
+  const requestRef = useRef(0);
 
   useEffect(() => {
-    let cancelled = false;
+    const requestId = ++requestRef.current;
+    startLoading();
 
     fetchAllCommodities()
       .then((data) => {
-        if (!cancelled) {
+        if (requestRef.current === requestId) {
           setCommodities(data);
           setLoading(false);
         }
       })
       .catch((err: unknown) => {
-        if (!cancelled) {
+        if (requestRef.current === requestId) {
           setError(err instanceof Error ? err.message : 'Unknown error');
           setLoading(false);
         }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+      })
+      .finally(stopLoading);
+  }, [startLoading, stopLoading]);
 
   return { commodities, loading, error };
 };

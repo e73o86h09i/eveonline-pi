@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { CommodityType, MarginInfo, MarketPrice } from '../types';
 import { fetchSchematic } from '../api';
 import { parsePrices } from '../utils';
+import { useGlobalLoading } from './useGlobalLoading';
 
 const computeMargins = async (commodities: CommodityType[], prices: Map<number, MarketPrice>): Promise<Map<number, MarginInfo>> => {
   const result = new Map<number, MarginInfo>();
@@ -61,6 +62,7 @@ const computeMargins = async (commodities: CommodityType[], prices: Map<number, 
 export const useMargins = (commodities: CommodityType[], prices: Map<number, MarketPrice>) => {
   const [margins, setMargins] = useState<Map<number, MarginInfo>>(() => new Map());
   const requestRef = useRef(0);
+  const { startLoading, stopLoading } = useGlobalLoading();
 
   useEffect(() => {
     if (commodities.length === 0 || prices.size === 0) {
@@ -68,13 +70,21 @@ export const useMargins = (commodities: CommodityType[], prices: Map<number, Mar
     }
 
     const requestId = ++requestRef.current;
+    startLoading();
 
-    computeMargins(commodities, prices).then((result) => {
-      if (requestRef.current === requestId) {
-        setMargins(result);
-      }
-    });
-  }, [commodities, prices]);
+    computeMargins(commodities, prices)
+      .then((result) => {
+        if (requestRef.current === requestId) {
+          setMargins(result);
+        }
+      })
+      .catch(() => {
+        if (requestRef.current === requestId) {
+          setMargins(new Map());
+        }
+      })
+      .finally(stopLoading);
+  }, [commodities, prices, startLoading, stopLoading]);
 
   return margins;
 };

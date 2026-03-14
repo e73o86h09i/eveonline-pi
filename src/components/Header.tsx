@@ -3,13 +3,20 @@ import { useState } from 'react';
 import { Navbar, NavbarBrand } from 'flowbite-react';
 import { LuCircleHelp } from 'react-icons/lu';
 import logo from '../../assets/EveOnline-PI-Calculator-Logo.png';
+import { useGlobalLoading } from '../hooks';
 
 const Header: FC = () => {
   const [showMarginInfo, setShowMarginInfo] = useState(false);
+  const { loading } = useGlobalLoading();
 
   return (
     <>
-      <Navbar fluid className="border-b border-gray-700 bg-gray-800">
+      <Navbar fluid className="relative border-b border-gray-700 bg-gray-800">
+        {loading && (
+          <div className="absolute bottom-0 left-0 h-0.5 w-full overflow-hidden bg-gray-700">
+            <div className="h-full w-1/3 animate-[shimmer_1.2s_ease-in-out_infinite] bg-blue-500" />
+          </div>
+        )}
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4">
           <NavbarBrand href="/">
             <img src={logo} alt="EVE Online PI Calculator" className="mr-3 h-8" />
