@@ -1,6 +1,6 @@
 import { type FC, useState } from 'react';
 import { LuFolderKanban, LuSave } from 'react-icons/lu';
-import type { CommoditySelection, Project } from '../../types';
+import type { Project } from '../../types';
 import { SaveProjectModal } from './SaveProjectModal';
 import { ProjectsModal } from './ProjectsModal';
 
@@ -11,15 +11,12 @@ type ProjectManagerProps = {
   onDelete: (name: string) => void;
   onDeleteMany: (names: Set<string>) => void;
   onImport: (imported: Project[]) => void;
-  selections: CommoditySelection[];
   activeProjectName: string | null;
 };
 
-const ProjectManager: FC<ProjectManagerProps> = ({ projects, onSave, onLoad, onDelete, onDeleteMany, onImport, selections, activeProjectName }) => {
+const ProjectManager: FC<ProjectManagerProps> = ({ projects, onSave, onLoad, onDelete, onDeleteMany, onImport, activeProjectName }) => {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [showProjectsModal, setShowProjectsModal] = useState(false);
-
-  const hasActiveSelections = selections.some((sel) => sel.typeId !== null);
 
   return (
     <>
@@ -33,10 +30,9 @@ const ProjectManager: FC<ProjectManagerProps> = ({ projects, onSave, onLoad, onD
           <span>Projects</span>
         </button>
         <button
-          className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white hover:bg-green-700"
           onClick={() => setShowSaveModal(true)}
-          disabled={!hasActiveSelections}
-          title={hasActiveSelections ? 'Save current selections as a project' : 'Select at least one commodity to save'}
+          title="Save current selections as a project"
         >
           <LuSave size={16} />
           <span>Save</span>

@@ -119,7 +119,6 @@ const PICalculator: FC = () => {
             onDelete={handleDeleteProject}
             onDeleteMany={handleDeleteProjects}
             onImport={handleImportProjects}
-            selections={selections}
             activeProjectName={activeProjectName}
           />
         </div>

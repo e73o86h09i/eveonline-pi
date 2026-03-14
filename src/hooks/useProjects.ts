@@ -7,15 +7,10 @@ const useProjects = () => {
 
   const saveProject = useCallback(
     (name: string, stationId: number, selections: CommoditySelection[]) => {
-      const activeSelections = selections.filter((sel) => sel.typeId !== null);
-      if (activeSelections.length === 0) {
-        return;
-      }
-
       const project: Project = {
         name,
         stationId,
-        selections: activeSelections,
+        selections,
         savedAt: Date.now(),
       };
 
