@@ -1,5 +1,5 @@
 import { type FC, Fragment, useMemo } from 'react';
-import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
+import { Badge, Spinner, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
 import { type Tier, TIERS } from '../../../types';
 import { CommodityIcon } from '../../common/CommodityIcon';
 import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../../../utils';
@@ -97,7 +97,7 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
                       {marginInfo.marginPercent.toFixed(1)}%
                     </span>
                   ) : (
-                    <span className="text-gray-500">—</span>
+                    <Spinner size="xs" />
                   )}
                 </TableCell>
                 <TableCell className="text-right text-gray-400">{cycleTime > 0 ? formatDuration(cycleTime) : '—'}</TableCell>
@@ -164,6 +164,8 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
                         {entryMargin.margin >= 0 ? '+' : ''}
                         {entryMargin.marginPercent.toFixed(1)}%
                       </span>
+                    ) : entry.tier !== 'r0' ? (
+                      <Spinner size="xs" />
                     ) : (
                       <span className="text-gray-500">—</span>
                     )}

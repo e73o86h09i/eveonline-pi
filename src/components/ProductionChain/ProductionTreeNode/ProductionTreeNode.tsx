@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { Badge } from 'flowbite-react';
+import { Badge, Spinner } from 'flowbite-react';
 import type { ProductionNode, Tier } from '../../../types';
 import { CommodityIcon } from '../../common/CommodityIcon';
 import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../../../utils';
@@ -58,7 +58,9 @@ const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path
             {node.name}
           </button>
           <span className="text-sm text-gray-400">×{formatQuantity(node.quantity, exactNumbers)}</span>
-          {!pricesLoading && (
+          {pricesLoading ? (
+            <span className="text-xs text-gray-500">…</span>
+          ) : (
             <span className="text-xs">
               {buyMax ? <span className="text-green-400">{formatIsk(buyMax, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
               <span className="text-gray-500"> / </span>
@@ -68,6 +70,8 @@ const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path
                   ({marginInfo.margin >= 0 ? '+' : ''}
                   {marginInfo.marginPercent.toFixed(1)}%)
                 </span>
+              ) : node.tier !== 'r0' ? (
+                <Spinner size="xs" className="ml-1" />
               ) : null}
             </span>
           )}

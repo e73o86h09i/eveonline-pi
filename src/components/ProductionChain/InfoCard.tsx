@@ -1,5 +1,5 @@
 import { type FC, useCallback, useRef, useState } from 'react';
-import { Badge, Card, Tooltip } from 'flowbite-react';
+import { Badge, Card, Spinner, Tooltip } from 'flowbite-react';
 import type { ProductionNode, Tier } from '../../types';
 import { usePlanets } from '../../hooks';
 import { CommodityIcon } from '../common/CommodityIcon';
@@ -193,7 +193,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
                     <span className="text-gray-500">n/a</span>
                   )}
                 </div>
-                {marginInfo && (
+                {marginInfo ? (
                   <div className="mt-1 border-t border-gray-700 pt-1">
                     <div>
                       Margin/run:{' '}
@@ -210,7 +210,11 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
                       <div>Inputs: {formatIsk(marginInfo.inputCost, exactPrices)} ISK</div>
                     </div>
                   </div>
-                )}
+                ) : tier !== 'r0' ? (
+                  <div className="mt-1 flex items-center gap-2 border-t border-gray-700 pt-1 text-gray-500">
+                    Margin/run: <Spinner size="xs" />
+                  </div>
+                ) : null}
               </div>
             )}
           </div>

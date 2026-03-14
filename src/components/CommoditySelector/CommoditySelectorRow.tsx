@@ -1,5 +1,5 @@
 import { type FC, useCallback, useMemo, useState } from 'react';
-import { Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Label, TextInput } from 'flowbite-react';
+import { Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Label, Spinner, TextInput } from 'flowbite-react';
 import { type CommoditySelection, type CommodityType, TIERS } from '../../types';
 import { CommodityIcon } from '../common/CommodityIcon';
 import { usePICalculator } from '../PICalculator/PICalculatorContext';
@@ -165,7 +165,9 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selectio
                                   ({marginInfo.margin >= 0 ? '+' : ''}
                                   {marginInfo.marginPercent.toFixed(1)}%)
                                 </span>
-                              ) : null}
+                              ) : (
+                                <Spinner size="xs" className="ml-1" />
+                              )}
                             </span>
                           ) : (
                             <span className="text-xs text-gray-500">n/a</span>
