@@ -166,7 +166,7 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selectio
                                   {marginInfo.marginPercent.toFixed(1)}%)
                                 </span>
                               ) : (
-                                <Spinner size="xs" className="ml-1" />
+                                <Spinner size="xs" className="mb-0.5 ml-1" />
                               )}
                             </span>
                           ) : (

@@ -71,7 +71,7 @@ const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path
                   {marginInfo.marginPercent.toFixed(1)}%)
                 </span>
               ) : node.tier !== 'r0' ? (
-                <Spinner size="xs" className="ml-1" />
+                <Spinner size="xs" className="mb-0.5 ml-1" />
               ) : null}
             </span>
           )}
