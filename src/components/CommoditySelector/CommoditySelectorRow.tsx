@@ -81,28 +81,32 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selectio
 
                   return (
                     <DropdownItem key={item.type_id} onClick={() => onSelectCommodity(item.type_id)}>
-                      <div className="flex w-full items-center justify-between gap-2">
-                        <div className="flex items-center gap-2">
-                          <CommodityIcon typeId={item.type_id} name={item.name.en} />
+                      <div className="flex w-full items-center gap-2 text-left">
+                        <CommodityIcon typeId={item.type_id} name={item.name.en} />
+                        <div className="flex flex-col">
                           <span>{item.name.en}</span>
+                          {pricesLoading ? (
+                            <span className="text-xs text-gray-500">…</span>
+                          ) : buyMax || sellMin ? (
+                            <span className="text-xs">
+                              {buyMax ? <span className="text-green-400">{formatIsk(buyMax, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
+                              <span className="text-gray-500"> / </span>
+                              {sellMin ? (
+                                <span className="text-yellow-400">{formatIsk(sellMin, exactPrices)}</span>
+                              ) : (
+                                <span className="text-gray-500">n/a</span>
+                              )}
+                              {marginInfo ? (
+                                <span className={marginInfo.margin >= 0 ? 'ml-1 text-green-400' : 'ml-1 text-red-400'}>
+                                  ({marginInfo.margin >= 0 ? '+' : ''}
+                                  {marginInfo.marginPercent.toFixed(1)}%)
+                                </span>
+                              ) : null}
+                            </span>
+                          ) : (
+                            <span className="text-xs text-gray-500">n/a</span>
+                          )}
                         </div>
-                        {pricesLoading ? (
-                          <span className="text-xs text-gray-500">…</span>
-                        ) : buyMax || sellMin ? (
-                          <span className="shrink-0 text-xs">
-                            {buyMax ? <span className="text-green-400">{formatIsk(buyMax, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
-                            <span className="text-gray-500"> / </span>
-                            {sellMin ? <span className="text-yellow-400">{formatIsk(sellMin, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
-                            {marginInfo ? (
-                              <span className={marginInfo.margin >= 0 ? 'ml-1 text-green-400' : 'ml-1 text-red-400'}>
-                                ({marginInfo.margin >= 0 ? '+' : ''}
-                                {marginInfo.marginPercent.toFixed(1)}%)
-                              </span>
-                            ) : null}
-                          </span>
-                        ) : (
-                          <span className="text-xs text-gray-500">n/a</span>
-                        )}
                       </div>
                     </DropdownItem>
                   );
