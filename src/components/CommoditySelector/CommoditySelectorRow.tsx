@@ -1,8 +1,6 @@
-import type { FC } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { type FC, useCallback, useMemo, useState } from 'react';
 import { Dropdown, DropdownDivider, DropdownHeader, DropdownItem, Label, TextInput } from 'flowbite-react';
-import type { CommoditySelection, CommodityType } from '../../types';
-import { TIERS } from '../../types';
+import { type CommoditySelection, type CommodityType, TIERS } from '../../types';
 import { CommodityIcon } from '../common/CommodityIcon';
 import { usePICalculator } from '../PICalculator/PICalculatorContext';
 import { formatIsk, parsePrices } from '../../utils';

@@ -1,6 +1,5 @@
 import { useContext } from 'react';
-import type { GlobalLoadingContextValue } from '../components/GlobalLoading';
-import { GlobalLoadingContext } from '../components/GlobalLoading';
+import { type GlobalLoadingContextValue, GlobalLoadingContext } from '../components/GlobalLoading';
 
 export const useGlobalLoading = (): GlobalLoadingContextValue => {
   const ctx = useContext(GlobalLoadingContext);

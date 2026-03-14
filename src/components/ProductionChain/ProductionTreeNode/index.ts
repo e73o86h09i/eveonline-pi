@@ -1,1 +1,1 @@
-export { default as ProductionTreeNode } from './ProductionTreeNode';
+export { ProductionTreeNode } from './ProductionTreeNode';

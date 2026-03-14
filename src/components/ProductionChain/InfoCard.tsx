@@ -1,5 +1,4 @@
-import type { FC } from 'react';
-import { useCallback, useRef, useState } from 'react';
+import { type FC, useCallback, useRef, useState } from 'react';
 import { Badge, Card, Tooltip } from 'flowbite-react';
 import type { ProductionNode, Tier } from '../../types';
 import { usePlanets } from '../../hooks';
@@ -269,10 +268,7 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
               <div className="space-y-1.5 text-gray-300">
                 {consumers.map((consumer, index) => {
                   const row = (
-                    <div
-                      key={`${consumer.typeId}-${index}`}
-                      className="flex items-center gap-1"
-                    >
+                    <div key={`${consumer.typeId}-${index}`} className="flex items-center gap-1">
                       <Badge color={tierColors[consumer.tier] ?? tierColors.r0} size="xs" className="uppercase">
                         {consumer.tier}
                       </Badge>

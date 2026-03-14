@@ -1,6 +1,5 @@
-import type { FC } from 'react';
+import { type FC, useMemo } from 'react';
 import { Spinner } from 'flowbite-react';
-import { useMemo } from 'react';
 import type { CommoditySelection, CommodityType } from '../../types';
 import { CommoditySelectorRow } from './CommoditySelectorRow';
 
@@ -71,4 +70,4 @@ const CommoditySelector: FC<CommoditySelectorProps> = ({
   );
 };
 
-export default CommoditySelector;
+export { CommoditySelector };

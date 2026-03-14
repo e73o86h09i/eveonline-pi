@@ -89,4 +89,4 @@ const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path
   );
 };
 
-export default ProductionTreeNode;
+export { ProductionTreeNode };

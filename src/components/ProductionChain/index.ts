@@ -1,1 +1,1 @@
-export { default as ProductionChain } from './ProductionChain';
+export { ProductionChain } from './ProductionChain';

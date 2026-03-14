@@ -1,5 +1,4 @@
-import type { FC, ReactNode } from 'react';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { type FC, type ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import { GlobalLoadingContext } from './GlobalLoadingContext';
 
 const GlobalLoadingProvider: FC<{ children: ReactNode }> = ({ children }) => {

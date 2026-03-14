@@ -50,3 +50,10 @@ export type MarginInfo = {
   margin: number;
   marginPercent: number;
 };
+
+export type Project = {
+  name: string;
+  stationId: number;
+  selections: CommoditySelection[];
+  savedAt: number;
+};

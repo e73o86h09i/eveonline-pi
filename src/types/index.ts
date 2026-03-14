@@ -7,4 +7,14 @@ export {
   type MarketPrice,
   type MarketOrderStats,
 } from './api';
-export { type Tier, type TierInfo, type ProductionNode, type CommoditySelection, type TradeStation, type MarginInfo, TIERS, TRADE_STATIONS } from './misc';
+export {
+  type Tier,
+  type TierInfo,
+  type ProductionNode,
+  type CommoditySelection,
+  type TradeStation,
+  type MarginInfo,
+  type Project,
+  TIERS,
+  TRADE_STATIONS,
+} from './misc';

@@ -91,6 +91,25 @@ Examples of what **not** to do:
 - `(e: React.ChangeEvent)` → use `event`
 - `(g) => g.type_ids` → use `group`
 
+### Imports
+Never have two import statements from the same module. When importing both types and values from the same source, use inline `type` specifiers in a single import:
+
+```ts
+// ✅ Good — single import with inline type
+import { type FC, useState } from 'react';
+import { type Project, TRADE_STATIONS } from '../../types';
+
+// ❌ Bad — duplicate imports from the same module
+import type { FC } from 'react';
+import { useState } from 'react';
+```
+
+If a module provides only types, a standalone `import type` is fine:
+
+```ts
+import type { CommodityType } from '../../types';
+```
+
 ### Blank Lines
 Enforced by ESLint via `@stylistic/padding-line-between-statements`:
 - **Before `return`** — add a blank line before every `return` statement, unless it is the only statement in the block.
@@ -128,7 +147,7 @@ Put reusable components that are used in multiple places in a separate folder na
 Talking shortly, follow the low copuling high cohesion principle to keep the components organized and easy to maintain.
 
 ## Component Syntax
-Define React components using `FC` from React with `export default`:
+Define React components using `FC` from React. Always use **named exports** — never use `export default`:
 
 ```tsx
 import type { FC } from 'react';
@@ -146,7 +165,7 @@ const MyComponent: FC<MyComponentProps> = ({ foo, bar }) => {
   );
 };
 
-export default MyComponent;
+export { MyComponent };
 ```
 
 If a component is simple and contains only the render part (no logic, hooks, or intermediate variables), use the short return syntax:
@@ -156,7 +175,7 @@ const MyComponent: FC<MyComponentProps> = ({ foo, bar }) => (
   <div>{foo}</div>
 );
 
-export default MyComponent;
+export { MyComponent };
 ```
 
 Components without props use `FC` with no generic argument:
@@ -166,22 +185,16 @@ const Header: FC = () => (
   <nav>...</nav>
 );
 
-export default Header;
-```
-
-Components that are **not** in their own directory (i.e. a single `.tsx` file without a dedicated folder) use a named export directly:
-
-```tsx
 export { Header };
 ```
 
-Barrel `index.ts` files re-export default exports as named exports:
+Barrel `index.ts` files re-export named exports:
 
 ```ts
-export { default as MyComponent } from './MyComponent';
+export { MyComponent } from './MyComponent';
 ```
 
-This way, all components are imported uniformly using named imports:
+All components are imported uniformly using named imports:
 
 ```ts
 import { Header } from './components/Header';

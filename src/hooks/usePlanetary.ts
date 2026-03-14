@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { CommodityType } from '../types';
-import { fetchAllCommodities, fetchPlanetsForResource } from '../api';
+import { type CommoditySelection, type CommodityType, type ProductionNode, type Tier, TIERS } from '../types';
+import { fetchAllCommodities, fetchPlanetsForResource, fetchSchematic, fetchType } from '../api';
 import { useGlobalLoading } from './useGlobalLoading';
 
 export const useCommodities = () => {
@@ -32,10 +32,6 @@ export const useCommodities = () => {
 
   return { commodities, loading, error };
 };
-
-import type { CommoditySelection, ProductionNode, Tier } from '../types';
-import { fetchSchematic, fetchType } from '../api';
-import { TIERS } from '../types';
 
 const getTierByGroupId = (groupId: number): Tier => {
   const found = TIERS.find((tierInfo) => tierInfo.groupIds.includes(groupId));

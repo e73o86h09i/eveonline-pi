@@ -1,5 +1,4 @@
-import type { FC } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { type FC, useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Card, Spinner, TabItem, Tabs, ToggleSwitch } from 'flowbite-react';
 import type { CommoditySelection, ProductionNode, Tier } from '../../types';
 import { useMultiProductionChain } from '../../hooks';
@@ -173,4 +172,4 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
   );
 };
 
-export default ProductionChain;
+export { ProductionChain };

@@ -1,8 +1,6 @@
-import type { FC } from 'react';
-import { Fragment, useMemo } from 'react';
+import { type FC, Fragment, useMemo } from 'react';
 import { Badge, Table, TableBody, TableCell, TableHead, TableHeadCell, TableRow } from 'flowbite-react';
-import type { Tier } from '../../../types';
-import { TIERS } from '../../../types';
+import { type Tier, TIERS } from '../../../types';
 import { CommodityIcon } from '../../common/CommodityIcon';
 import { formatDuration, formatIsk, formatQuantity, parsePrices, sortByTier, tierColors } from '../../../utils';
 import { usePICalculator } from '../../PICalculator/PICalculatorContext';
@@ -183,4 +181,4 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
   );
 };
 
-export default ProductionSummary;
+export { ProductionSummary };

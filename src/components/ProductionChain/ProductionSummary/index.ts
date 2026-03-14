@@ -1,1 +1,1 @@
-export { default as ProductionSummary } from './ProductionSummary';
+export { ProductionSummary } from './ProductionSummary';

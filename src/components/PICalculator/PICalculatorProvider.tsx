@@ -1,6 +1,5 @@
-import type { FC, ReactNode } from 'react';
-import { useCallback, useMemo, useState } from 'react';
-import type { MarginInfo, MarketPrice, ProductionNode } from '../../types';
+import { type FC, type ReactNode, useCallback, useMemo, useState } from 'react';
+import { type MarginInfo, type MarketPrice, type ProductionNode } from '../../types';
 import { PICalculatorContext } from './PICalculatorContext';
 
 const collectDescendantPaths = (node: ProductionNode, parentPath: string): string[] => {
