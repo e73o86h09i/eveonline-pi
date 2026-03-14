@@ -18,7 +18,7 @@ type CommoditySelectorRowProps = {
 };
 
 const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selection, showLabels, canRemove, onSelectCommodity, onQuantityChange, onRemove }) => {
-  const { prices, pricesLoading, margins } = usePICalculator();
+  const { prices, pricesLoading, margins, exactPrices } = usePICalculator();
   const quantityId = `quantity-input-${selection.id}`;
 
   const selectedName = useMemo(() => {
@@ -90,9 +90,9 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selectio
                           <span className="text-xs text-gray-500">…</span>
                         ) : buyMax || sellMin ? (
                           <span className="shrink-0 text-xs">
-                            {buyMax ? <span className="text-green-400">{formatIsk(buyMax)}</span> : <span className="text-gray-500">n/a</span>}
+                            {buyMax ? <span className="text-green-400">{formatIsk(buyMax, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
                             <span className="text-gray-500"> / </span>
-                            {sellMin ? <span className="text-yellow-400">{formatIsk(sellMin)}</span> : <span className="text-gray-500">n/a</span>}
+                            {sellMin ? <span className="text-yellow-400">{formatIsk(sellMin, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
                             {marginInfo ? (
                               <span className={marginInfo.margin >= 0 ? 'ml-1 text-green-400' : 'ml-1 text-red-400'}>
                                 ({marginInfo.margin >= 0 ? '+' : ''}

@@ -22,6 +22,7 @@ const PICalculatorProvider: FC<{ prices: Map<number, MarketPrice>; pricesLoading
 }) => {
   const [trees, setTrees] = useState<ProductionNode[]>([]);
   const [exactNumbers, setExactNumbers] = useState(false);
+  const [exactPrices, setExactPrices] = useState(false);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(() => new Set());
   const [activeTab, setActiveTab] = useState(0);
 
@@ -42,8 +43,22 @@ const PICalculatorProvider: FC<{ prices: Map<number, MarketPrice>; pricesLoading
   }, []);
 
   const treeContextValue = useMemo(
-    () => ({ trees, setTrees, expandedNodes, toggleNode, exactNumbers, setExactNumbers, activeTab, setActiveTab, prices, pricesLoading, margins }),
-    [trees, expandedNodes, toggleNode, exactNumbers, activeTab, prices, pricesLoading, margins],
+    () => ({
+      trees,
+      setTrees,
+      expandedNodes,
+      toggleNode,
+      exactNumbers,
+      setExactNumbers,
+      exactPrices,
+      setExactPrices,
+      activeTab,
+      setActiveTab,
+      prices,
+      pricesLoading,
+      margins,
+    }),
+    [trees, expandedNodes, toggleNode, exactNumbers, exactPrices, activeTab, prices, pricesLoading, margins],
   );
 
   return <PICalculatorContext value={treeContextValue}>{children}</PICalculatorContext>;

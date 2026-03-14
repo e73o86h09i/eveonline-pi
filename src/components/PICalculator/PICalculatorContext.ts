@@ -8,6 +8,8 @@ type PICalculatorContextValue = {
   toggleNode: (path: string, node: ProductionNode) => void;
   exactNumbers: boolean;
   setExactNumbers: (value: boolean) => void;
+  exactPrices: boolean;
+  setExactPrices: (value: boolean) => void;
   activeTab: number;
   setActiveTab: (tab: number) => void;
   prices: Map<number, MarketPrice>;

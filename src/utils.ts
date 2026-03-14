@@ -66,7 +66,11 @@ export const parsePrices = (price: MarketPrice | undefined): ParsedPrices => {
   return { buyMax, sellMin };
 };
 
-export const formatIsk = (value: number): string => {
+export const formatIsk = (value: number, exact = false): string => {
+  if (exact) {
+    return value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
   const sign = value < 0 ? '-' : '';
   const abs = Math.abs(value);
 

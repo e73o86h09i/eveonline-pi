@@ -21,7 +21,7 @@ type InfoCardProps = {
 };
 
 const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosition, onClose, onBringToFront, onOpenCard, onPositionChange }) => {
-  const { trees, exactNumbers, prices, pricesLoading, margins } = usePICalculator();
+  const { trees, exactNumbers, exactPrices, prices, pricesLoading, margins } = usePICalculator();
   const [position, setPosition] = useState(initialPosition);
   const positionRef = useRef(initialPosition);
   const dragStartRef = useRef({ x: 0, y: 0 });
@@ -179,10 +179,20 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
             ) : (
               <div className="space-y-1 text-gray-300">
                 <div>
-                  Buy: {buyMax ? <span className="font-semibold text-green-400">{formatIsk(buyMax)} ISK</span> : <span className="text-gray-500">n/a</span>}
+                  Buy:{' '}
+                  {buyMax ? (
+                    <span className="font-semibold text-green-400">{formatIsk(buyMax, exactPrices)} ISK</span>
+                  ) : (
+                    <span className="text-gray-500">n/a</span>
+                  )}
                 </div>
                 <div>
-                  Sell: {sellMin ? <span className="font-semibold text-yellow-400">{formatIsk(sellMin)} ISK</span> : <span className="text-gray-500">n/a</span>}
+                  Sell:{' '}
+                  {sellMin ? (
+                    <span className="font-semibold text-yellow-400">{formatIsk(sellMin, exactPrices)} ISK</span>
+                  ) : (
+                    <span className="text-gray-500">n/a</span>
+                  )}
                 </div>
                 {marginInfo && (
                   <div className="mt-1 border-t border-gray-700 pt-1">
@@ -190,15 +200,15 @@ const InfoCard: FC<InfoCardProps> = ({ typeId, name, tier, flashKey, initialPosi
                       Margin/run:{' '}
                       <span className={marginInfo.margin >= 0 ? 'font-semibold text-green-400' : 'font-semibold text-red-400'}>
                         {marginInfo.margin >= 0 ? '+' : ''}
-                        {formatIsk(marginInfo.margin)} ISK ({marginInfo.marginPercent >= 0 ? '+' : ''}
+                        {formatIsk(marginInfo.margin, exactPrices)} ISK ({marginInfo.marginPercent >= 0 ? '+' : ''}
                         {marginInfo.marginPercent.toFixed(1)}%)
                       </span>
                     </div>
                     <div className="mt-1 text-xs text-gray-400">
                       <div>
-                        Output: {outputPerRun}× {formatIsk(buyMax ?? 0)} = {formatIsk(marginInfo.outputValue)} ISK
+                        Output: {outputPerRun}× {formatIsk(buyMax ?? 0, exactPrices)} = {formatIsk(marginInfo.outputValue, exactPrices)} ISK
                       </div>
-                      <div>Inputs: {formatIsk(marginInfo.inputCost)} ISK</div>
+                      <div>Inputs: {formatIsk(marginInfo.inputCost, exactPrices)} ISK</div>
                     </div>
                   </div>
                 )}

@@ -15,7 +15,7 @@ type ProductionSummaryProps = {
 const tierLabels: Record<string, string> = Object.fromEntries(TIERS.map((tier) => [tier.tier, tier.label]));
 
 const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
-  const { trees, exactNumbers, prices, pricesLoading, margins } = usePICalculator();
+  const { trees, exactNumbers, exactPrices, prices, pricesLoading, margins } = usePICalculator();
   const entries = useMemo(() => summarizeTrees(trees), [trees]);
 
   const targetProducts = useMemo(() => {
@@ -84,9 +84,9 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
                     <span className="text-gray-500">…</span>
                   ) : (
                     <span className="text-xs">
-                      {buyMax ? <span className="text-green-400">{formatIsk(buyMax)}</span> : <span className="text-gray-500">n/a</span>}
+                      {buyMax ? <span className="text-green-400">{formatIsk(buyMax, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
                       <span className="text-gray-500"> / </span>
-                      {sellMin ? <span className="text-yellow-400">{formatIsk(sellMin)}</span> : <span className="text-gray-500">n/a</span>}
+                      {sellMin ? <span className="text-yellow-400">{formatIsk(sellMin, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
                     </span>
                   )}
                 </TableCell>
@@ -144,9 +144,17 @@ const ProductionSummary: FC<ProductionSummaryProps> = ({ onOpenCard }) => {
                       <span className="text-gray-500">…</span>
                     ) : (
                       <span className="text-xs">
-                        {entryBuyMax ? <span className="text-green-400">{formatIsk(entryBuyMax)}</span> : <span className="text-gray-500">n/a</span>}
+                        {entryBuyMax ? (
+                          <span className="text-green-400">{formatIsk(entryBuyMax, exactPrices)}</span>
+                        ) : (
+                          <span className="text-gray-500">n/a</span>
+                        )}
                         <span className="text-gray-500"> / </span>
-                        {entrySellMin ? <span className="text-yellow-400">{formatIsk(entrySellMin)}</span> : <span className="text-gray-500">n/a</span>}
+                        {entrySellMin ? (
+                          <span className="text-yellow-400">{formatIsk(entrySellMin, exactPrices)}</span>
+                        ) : (
+                          <span className="text-gray-500">n/a</span>
+                        )}
                       </span>
                     )}
                   </TableCell>

@@ -13,7 +13,7 @@ type ProductionTreeNodeProps = {
 };
 
 const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path = String(node.typeId), onOpenCard }) => {
-  const { expandedNodes, toggleNode, exactNumbers, prices, pricesLoading, margins } = usePICalculator();
+  const { expandedNodes, toggleNode, exactNumbers, exactPrices, prices, pricesLoading, margins } = usePICalculator();
   const color = tierColors[node.tier] ?? tierColors.r0;
   const hasChildren = node.inputs.length > 0;
   const isRoot = depth === 0;
@@ -60,9 +60,9 @@ const ProductionTreeNode: FC<ProductionTreeNodeProps> = ({ node, depth = 0, path
           <span className="text-sm text-gray-400">×{formatQuantity(node.quantity, exactNumbers)}</span>
           {!pricesLoading && (
             <span className="text-xs">
-              {buyMax ? <span className="text-green-400">{formatIsk(buyMax)}</span> : <span className="text-gray-500">n/a</span>}
+              {buyMax ? <span className="text-green-400">{formatIsk(buyMax, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
               <span className="text-gray-500"> / </span>
-              {sellMin ? <span className="text-yellow-400">{formatIsk(sellMin)}</span> : <span className="text-gray-500">n/a</span>}
+              {sellMin ? <span className="text-yellow-400">{formatIsk(sellMin, exactPrices)}</span> : <span className="text-gray-500">n/a</span>}
               {marginInfo ? (
                 <span className={marginInfo.margin >= 0 ? 'ml-1 text-green-400' : 'ml-1 text-red-400'}>
                   ({marginInfo.margin >= 0 ? '+' : ''}

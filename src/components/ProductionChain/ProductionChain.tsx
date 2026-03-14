@@ -23,7 +23,7 @@ type ProductionChainProps = {
 
 const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
   const { trees: resolvedTrees, loading, errors } = useMultiProductionChain(selections);
-  const { setTrees, exactNumbers, setExactNumbers, activeTab, setActiveTab } = usePICalculator();
+  const { setTrees, exactNumbers, setExactNumbers, exactPrices, setExactPrices, activeTab, setActiveTab } = usePICalculator();
   const [openCards, setOpenCards] = useState<OpenCard[]>([]);
 
   const allTrees = useMemo(() => resolvedTrees.map((resolved) => resolved.tree), [resolvedTrees]);
@@ -134,7 +134,10 @@ const ProductionChain: FC<ProductionChainProps> = ({ selections }) => {
           Production Chain
           {loading && <Spinner size="sm" />}
         </h2>
-        <ToggleSwitch checked={exactNumbers} onChange={setExactNumbers} label="Exact numbers" sizing="sm" />
+        <div className="flex items-center gap-4">
+          <ToggleSwitch checked={exactNumbers} onChange={setExactNumbers} label="Exact numbers" sizing="sm" />
+          <ToggleSwitch checked={exactPrices} onChange={setExactPrices} label="Exact prices" sizing="sm" />
+        </div>
       </div>
       <Tabs variant="underline" onActiveTabChange={setActiveTab}>
         <TabItem active={activeTab === 0} title="Tree">
