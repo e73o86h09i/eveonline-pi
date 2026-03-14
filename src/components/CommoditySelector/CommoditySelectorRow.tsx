@@ -71,9 +71,22 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selectio
   const renderTrigger = () => (
     <button
       type="button"
-      className="flex w-full items-center justify-between rounded-lg border border-gray-600 bg-gray-700 px-3 py-2.5 text-left text-sm text-white hover:border-gray-500"
+      className="flex w-full items-center rounded-lg border border-gray-600 bg-gray-700 px-3 py-2.5 text-left text-sm hover:border-gray-500"
     >
-      <span className={selectedName ? 'text-white' : 'text-gray-400'}>{selectedName ?? '-- Choose a commodity --'}</span>
+      <span className={`min-w-0 flex-1 truncate ${selectedName ? 'text-white' : 'text-gray-400'}`}>{selectedName ?? '-- Choose a commodity --'}</span>
+      {selectedName && (
+        <span
+          role="button"
+          className="ml-2 shrink-0 text-gray-400 hover:text-white"
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelectCommodity(null);
+          }}
+          aria-label="Clear selection"
+        >
+          ✕
+        </span>
+      )}
       <svg className="ml-2 h-4 w-4 shrink-0 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
       </svg>
@@ -108,14 +121,6 @@ const CommoditySelectorRow: FC<CommoditySelectorRowProps> = ({ grouped, selectio
               )}
             </div>
           </div>
-          <DropdownItem
-            onClick={() => {
-              onSelectCommodity(null);
-              setSearch('');
-            }}
-          >
-            <span className="text-gray-400">-- Choose a commodity --</span>
-          </DropdownItem>
           {tiers.map((tier, tierIndex) => {
             const items = filteredGrouped.get(tier.groupIds[0]);
             if (!items?.length) {
