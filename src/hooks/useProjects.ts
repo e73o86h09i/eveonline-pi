@@ -41,7 +41,38 @@ const useProjects = () => {
     [setProjects],
   );
 
-  return { projects, saveProject, deleteProject };
+  const deleteProjects = useCallback(
+    (names: Set<string>) => {
+      setProjects((prev) => prev.filter((proj) => !names.has(proj.name)));
+    },
+    [setProjects],
+  );
+
+  const importProjects = useCallback(
+    (imported: Project[]) => {
+      setProjects((prev) => {
+        const existingNames = new Set(prev.map((proj) => proj.name));
+        const newProjects: Project[] = [];
+
+        for (const project of imported) {
+          let uniqueName = project.name;
+          let counter = 1;
+          while (existingNames.has(uniqueName)) {
+            uniqueName = `${project.name} (${counter})`;
+            counter++;
+          }
+
+          existingNames.add(uniqueName);
+          newProjects.push({ ...project, name: uniqueName });
+        }
+
+        return [...prev, ...newProjects];
+      });
+    },
+    [setProjects],
+  );
+
+  return { projects, saveProject, deleteProject, deleteProjects, importProjects };
 };
 
 export { useProjects };

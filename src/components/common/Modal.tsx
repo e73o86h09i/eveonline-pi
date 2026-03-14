@@ -15,8 +15,8 @@ const Modal: FC<ModalProps> = ({ open, onClose, title, children, maxWidth = 'max
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60" onClick={onClose}>
-      <div className={`mx-4 w-full ${maxWidth} rounded-lg border border-gray-600 bg-gray-800 shadow-xl`} onClick={(event) => event.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-gray-600 p-4">
+      <div className={`mx-4 w-full ${maxWidth} max-h-[90dvh] flex flex-col rounded-lg border border-gray-600 bg-gray-800 shadow-xl`} onClick={(event) => event.stopPropagation()}>
+        <div className="flex shrink-0 items-center justify-between border-b border-gray-600 p-4">
           <h3 className="text-lg font-semibold text-white">{title}</h3>
           <button
             onClick={onClose}
@@ -26,7 +26,7 @@ const Modal: FC<ModalProps> = ({ open, onClose, title, children, maxWidth = 'max
             ✕
           </button>
         </div>
-        <div className="p-4">{children}</div>
+        <div className="overflow-y-auto p-4">{children}</div>
       </div>
     </div>
   );

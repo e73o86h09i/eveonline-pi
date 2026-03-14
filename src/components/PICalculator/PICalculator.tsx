@@ -20,7 +20,7 @@ const PICalculator: FC = () => {
   const [selections, setSelections] = useLocalStorage<CommoditySelection[]>('selections', DEFAULT_SELECTIONS);
   const nextIdRef = useRef(Math.max(...selections.map((sel) => sel.id), 0) + 1);
 
-  const { projects, saveProject, deleteProject } = useProjects();
+  const { projects, saveProject, deleteProject, deleteProjects, importProjects } = useProjects();
   const [activeProjectName, setActiveProjectName] = useLocalStorage<string | null>('activeProject', null);
 
   useEffect(() => {
@@ -86,6 +86,23 @@ const PICalculator: FC = () => {
     [deleteProject, activeProjectName, setActiveProjectName],
   );
 
+  const handleDeleteProjects = useCallback(
+    (names: Set<string>) => {
+      deleteProjects(names);
+      if (activeProjectName && names.has(activeProjectName)) {
+        setActiveProjectName(null);
+      }
+    },
+    [deleteProjects, activeProjectName, setActiveProjectName],
+  );
+
+  const handleImportProjects = useCallback(
+    (imported: Project[]) => {
+      importProjects(imported);
+    },
+    [importProjects],
+  );
+
   return (
     <PICalculatorProvider prices={prices} pricesLoading={pricesLoading} margins={margins}>
       <main className="mx-auto max-w-4xl px-4 py-8">
@@ -100,6 +117,8 @@ const PICalculator: FC = () => {
             onSave={handleSaveProject}
             onLoad={handleLoadProject}
             onDelete={handleDeleteProject}
+            onDeleteMany={handleDeleteProjects}
+            onImport={handleImportProjects}
             selections={selections}
             activeProjectName={activeProjectName}
           />

@@ -1,21 +1,23 @@
 import { type FC, useState } from 'react';
-import { LuFolderOpen, LuSave } from 'react-icons/lu';
+import { LuFolderKanban, LuSave } from 'react-icons/lu';
 import type { CommoditySelection, Project } from '../../types';
 import { SaveProjectModal } from './SaveProjectModal';
-import { LoadProjectModal } from './LoadProjectModal';
+import { ProjectsModal } from './ProjectsModal';
 
 type ProjectManagerProps = {
   projects: Project[];
   onSave: (name: string) => void;
   onLoad: (project: Project) => void;
   onDelete: (name: string) => void;
+  onDeleteMany: (names: Set<string>) => void;
+  onImport: (imported: Project[]) => void;
   selections: CommoditySelection[];
   activeProjectName: string | null;
 };
 
-const ProjectManager: FC<ProjectManagerProps> = ({ projects, onSave, onLoad, onDelete, selections, activeProjectName }) => {
+const ProjectManager: FC<ProjectManagerProps> = ({ projects, onSave, onLoad, onDelete, onDeleteMany, onImport, selections, activeProjectName }) => {
   const [showSaveModal, setShowSaveModal] = useState(false);
-  const [showLoadModal, setShowLoadModal] = useState(false);
+  const [showProjectsModal, setShowProjectsModal] = useState(false);
 
   const hasActiveSelections = selections.some((sel) => sel.typeId !== null);
 
@@ -23,13 +25,12 @@ const ProjectManager: FC<ProjectManagerProps> = ({ projects, onSave, onLoad, onD
     <>
       <div className="flex items-center gap-2">
         <button
-          className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          onClick={() => setShowLoadModal(true)}
-          disabled={projects.length === 0}
-          title={projects.length === 0 ? 'No saved projects' : 'Load project'}
+          className="flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+          onClick={() => setShowProjectsModal(true)}
+          title="Manage projects"
         >
-          <LuFolderOpen size={16} />
-          <span>Load</span>
+          <LuFolderKanban size={16} />
+          <span>Projects</span>
         </button>
         <button
           className="flex items-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
@@ -49,7 +50,15 @@ const ProjectManager: FC<ProjectManagerProps> = ({ projects, onSave, onLoad, onD
         projects={projects}
         defaultName={activeProjectName ?? ''}
       />
-      <LoadProjectModal open={showLoadModal} onClose={() => setShowLoadModal(false)} onLoad={onLoad} onDelete={onDelete} projects={projects} />
+      <ProjectsModal
+        open={showProjectsModal}
+        onClose={() => setShowProjectsModal(false)}
+        onLoad={onLoad}
+        onDelete={onDelete}
+        onDeleteMany={onDeleteMany}
+        onImport={onImport}
+        projects={projects}
+      />
     </>
   );
 };
